@@ -1,0 +1,1 @@
+<a  class="btn btn-sm {{$data->active==1?'btn-success':'btn-warning lb-active-user'}} " data-value="{{$data->active}}" data-type="{{$type?$type:''}}"  style="width:80px;">{{$data->active==1?'Active':'Disable'}}</a>
