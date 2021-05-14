@@ -106,10 +106,11 @@
                             <thead>
                                 <tr>
                                     <th>STT</th>
-                                    <th>ID</th>
+                                    <th>Mã SP</th>
                                     <th>Name</th>
                                     <th>Giá</th>
-                                    <th class="white-space-nowrap">Số lượt xem</th>
+                                    {{-- <th class="white-space-nowrap">Số lượt xem</th> --}}
+                                    <th>Số SP tồn kho</th>
                                     <th class="white-space-nowrap">Số lượt mua</th>
                                     <th class="white-space-nowrap">Avatar</th>
                                     <th class="white-space-nowrap">Active</th>
@@ -123,12 +124,16 @@
                                     {{-- {{dd($productItem->category)}} --}}
                                 <tr>
                                     <td>{{$loop->index}}</td>
-                                    <td>{{$productItem->id}}</td>
+                                    <td>{{$productItem->masp}}</td>
                                     <td>{{$productItem->name}}</td>
 
                                     <td class="text-nowrap"><strong>{{ number_format($productItem->price) }}</strong></td>
-                                    <td class="text-nowrap">{{$productItem->view}}</td>
-                                    <td class="text-nowrap">{{$productItem->pay}}</td>
+                                    {{-- <td class="text-nowrap">{{$productItem->view}}</td> --}}
+                                    <td>{{$productItem->stores()->select(\App\Models\Store::raw('SUM(quantity) as total'))->first()->total? $productItem->stores()->select(\App\Models\Store::raw('SUM(quantity) as total'))->first()->total:0 }}</td>
+                                    <td class="text-nowrap">
+                                        {{-- {{$productItem->pay}} --}}
+                                        {{$productItem->stores()->whereIn('type',[2,3])->select(\App\Models\Store::raw('SUM(quantity) as total'))->first()->total? $productItem->stores()->whereIn('type',[2,3])->select(\App\Models\Store::raw('SUM(quantity) as total'))->first()->total:0 }}
+                                    </td>
                                     <td><img src="{{asset($productItem->avatar_path)}}" alt="{{$productItem->name}}" style="width:80px;"></td>
                                     <td class="wrap-load-active" data-url="{{ route('admin.product.load.active',['id'=>$productItem->id]) }}">
                                         @include('admin.components.load-change-active',['data'=>$productItem,'type'=>'sản phẩm'])

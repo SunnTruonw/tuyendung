@@ -44,6 +44,10 @@ class Transaction extends Model
     {
         return $this->hasMany(Order::class, "transaction_id", "id");
     }
+    public function stores()
+    {
+        return $this->hasMany(Store::class, "transaction_id", "id");
+    }
     public function products()
     {
         return $this
@@ -54,6 +58,12 @@ class Transaction extends Model
     {
         return $this->belongsTo(City::class, 'city_id', 'id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
     public function district()
     {
         return  $this->belongsTo(District::class, 'district_id', 'id');

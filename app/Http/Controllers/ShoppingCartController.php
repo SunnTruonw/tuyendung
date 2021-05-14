@@ -57,7 +57,7 @@ class ShoppingCartController extends Controller
         $cities = $address->cities($data);
         $this->cart = new CartHelper();
         $data = $this->cart->cartItems;
-      //  dd($data);
+        //  dd($data);
         $totalPrice =  $this->cart->getTotalPrice();
         $totalQuantity =  $this->cart->getTotalQuantity();
         $totalOldPrice = $this->cart->getTotalOldPrice();
@@ -68,7 +68,7 @@ class ShoppingCartController extends Controller
         // dd( $totalOldPrice);
         $user = auth()->guard('web')->user();
         $sumPointCurrent = $this->point->sumPointCurrent($user->id);
-       // dd($this->cart->cartItems);
+        // dd($this->cart->cartItems);
         return view('frontend.pages.cart', [
             'data' => $data,
             'cities' => $cities,
@@ -77,8 +77,8 @@ class ShoppingCartController extends Controller
             'totalOldPrice' => $totalOldPrice,
             'unit' => $this->unit,
             'sumPointCurrent' => $sumPointCurrent,
-            'totalPriceMoney'=>$totalPriceMoney,
-            'totalPricePoint'=>$totalPricePoint,
+            'totalPriceMoney' => $totalPriceMoney,
+            'totalPricePoint' => $totalPricePoint,
             'pointUnit' => $this->pointUnit,
             'usePoint' => $numberPoint,
         ]);
@@ -125,7 +125,7 @@ class ShoppingCartController extends Controller
         $errorNumberPoint = false;
         if ($request->has('usePoint')) {
 
-            $numberPoint = (int)$request->input('usePoint');
+            $numberPoint = (float)$request->input('usePoint');
             if ($numberPoint) {
                 //  dd($numberPoint);
                 if ($numberPoint > $sumPointCurrent) {
@@ -133,16 +133,16 @@ class ShoppingCartController extends Controller
                     $totalPriceMoney = $totalPrice;
                     $totalPricePoint = 0;
                 } elseif (pointToMoney($numberPoint) > $totalPrice) {
-                    $errorNumberPoint = "Số điểm sử dụng tương đương với ".number_format(pointToMoney($numberPoint))." ".$this->unit." nhỏ hơn tổng giá trị sản phẩm:" . number_format($totalPrice) . " " . $this->unit;
+                    $errorNumberPoint = "Số điểm sử dụng tương đương với " . number_format(pointToMoney($numberPoint)) . " " . $this->unit . " nhỏ hơn tổng giá trị sản phẩm:" . number_format($totalPrice) . " " . $this->unit;
                     $totalPriceMoney = $totalPrice;
                     $totalPricePoint = 0;
                 } else {
                     $totalPriceMoney = $totalPrice - pointToMoney($numberPoint);
                     $totalPricePoint = $numberPoint;
                 }
-            }else{
-                $totalPriceMoney=$totalPrice;
-                $totalPricePoint=0;
+            } else {
+                $totalPriceMoney = $totalPrice;
+                $totalPricePoint = 0;
             }
         } else {
             $totalPriceMoney = $totalPrice - pointToMoney($numberPoint);
@@ -179,7 +179,7 @@ class ShoppingCartController extends Controller
         $sumPointCurrent = $this->point->sumPointCurrent($user->id);
         $this->cart = new CartHelper();
         $quantity = $request->quantity;
-        if($id){
+        if ($id) {
             $this->cart->update($id, $quantity);
         }
         $totalPrice =  $this->cart->getTotalPrice();
@@ -190,8 +190,8 @@ class ShoppingCartController extends Controller
 
         if ($request->has('usePoint')) {
 
-            $numberPoint = (int)$request->input('usePoint');
-          //  dd( $totalPrice);
+            $numberPoint = (float)$request->input('usePoint');
+            //  dd( $totalPrice);
             if ($numberPoint) {
                 //  dd($numberPoint);
                 if ($numberPoint > $sumPointCurrent) {
@@ -199,16 +199,16 @@ class ShoppingCartController extends Controller
                     $totalPriceMoney = $totalPrice;
                     $totalPricePoint = 0;
                 } elseif (pointToMoney($numberPoint) > $totalPrice) {
-                    $errorNumberPoint = "Số điểm sử dụng tương đương với ".number_format(pointToMoney($numberPoint))." ".$this->unit." nhỏ hơn tổng giá trị sản phẩm:" . number_format($totalPrice) . " " . $this->unit;
+                    $errorNumberPoint = "Số điểm sử dụng tương đương với " . number_format(pointToMoney($numberPoint)) . " " . $this->unit . " nhỏ hơn tổng giá trị sản phẩm:" . number_format($totalPrice) . " " . $this->unit;
                     $totalPriceMoney = $totalPrice;
                     $totalPricePoint = 0;
                 } else {
                     $totalPriceMoney = $totalPrice - pointToMoney($numberPoint);
                     $totalPricePoint = $numberPoint;
                 }
-            }else{
-                $totalPriceMoney=$totalPrice;
-                $totalPricePoint=0;
+            } else {
+                $totalPriceMoney = $totalPrice;
+                $totalPricePoint = 0;
             }
         } else {
             $totalPriceMoney = $totalPrice - pointToMoney($numberPoint);
@@ -266,9 +266,9 @@ class ShoppingCartController extends Controller
 
     public function postOrder(Request $request)
     {
-         $this->cart = new CartHelper();
+        $this->cart = new CartHelper();
         $dataCart = $this->cart->cartItems;
-        if(count($dataCart)){
+        if (count($dataCart)) {
             try {
                 DB::beginTransaction();
 
@@ -279,10 +279,18 @@ class ShoppingCartController extends Controller
                 //     "quantity" => $request->input('quantity'),
                 // ];
 
+                $code= 'mgd-'.date('Y-m-d-h-s-m');
+                while($this->transaction->where([
+                    'code'=>$code,
+                ])->exists()){
+                    $code= 'mgd-'.date('Y-m-d-h-s-m').rand(1,1000);
+                }
+
                 $dataTransactionCreate = [
+                    'code'=>$code,
                     'total' => $totalPrice,
-                    'point' => $request->input('usePoint')?$request->input('usePoint'):0,
-                    'money'=>$totalPrice - (pointToMoney($request->input('usePoint')?$request->input('usePoint'):0)),
+                    'point' => $request->input('usePoint') ? $request->input('usePoint') : 0,
+                    'money' => $totalPrice - (pointToMoney($request->input('usePoint') ? $request->input('usePoint') : 0)),
                     'name' => $request->input('name'),
                     'phone' => $request->input('phone'),
                     'note' => $request->input('note'),
@@ -295,28 +303,29 @@ class ShoppingCartController extends Controller
                     'admin_id' => 0,
                     'user_id' => Auth::check() ? Auth::user()->id : 0,
                 ];
+                $user = auth()->guard('web')->user();
+                if ($request->has('usePoint')) {
+                    if ($request->input('usePoint')) {
+                        $dataTransactionCreate['point'] = $request->input('usePoint');
+                        $dataTransactionCreate['money'] = $totalPrice - pointToMoney($dataTransactionCreate['point']);
 
-                if($request->has('usePoint')){
-                    if($request->input('usePoint')){
-                        $dataTransactionCreate['point'] =$request->input('usePoint');
-                        $dataTransactionCreate['money']=$totalPrice -pointToMoney($dataTransactionCreate['point']);
 
-                        $user = auth()->guard('web')->user();
                         if ($user) {
                             $user->points()->create([
                                 'type' => $this->typePoint[6]['type'],
-                                'point' =>0- $dataTransactionCreate['point'],
+                                'point' => 0 - $dataTransactionCreate['point'],
                                 'active' => 1,
                             ]);
                         }
-                    }else{
-                        $dataTransactionCreate['point'] =0;
-                        $dataTransactionCreate['money']=$totalPrice;
+                    } else {
+                        $dataTransactionCreate['point'] = 0;
+                        $dataTransactionCreate['money'] = $totalPrice;
                     }
                 }
-
-            //    dd($this->transaction);
+                // tạo giao dịch
+                //    dd($this->transaction);
                 $transaction = $this->transaction->create($dataTransactionCreate);
+                // tạo các order của transaction
                 $dataOrderCreate = [];
                 foreach ($dataCart as $cart) {
                     $dataOrderCreate[] = [
@@ -338,6 +347,23 @@ class ShoppingCartController extends Controller
                 // insert database in orders table by createMany
                 $transaction->orders()->createMany($dataOrderCreate);
 
+                // Đưa sản phẩm trong kho sang trạng thái đợi vận chuyển
+                $dataStoreCreate = [
+                    "active" => 1,
+                    "type" => 2,
+                ];
+
+                $dataStoreCreate["transaction_id"] = $transaction->id;
+                $orders= $transaction->orders;
+                $listDataStoreCreate=[];
+                foreach ($orders as $order) {
+                    $storeItem= $dataStoreCreate;
+                    $storeItem['quantity']=-$order->quantity;
+                    $storeItem['product_id']=$order->product_id;
+                    array_push($listDataStoreCreate,$storeItem);
+                }
+             //   dd($listDataStoreCreate);
+                $transaction->stores()->createMany($listDataStoreCreate);
 
 
                 $this->cart->clear();
@@ -349,10 +375,9 @@ class ShoppingCartController extends Controller
                 Log::error('message' . $exception->getMessage() . 'line :' . $exception->getLine());
                 return redirect()->route('cart.order.sucess', ['id' => $transaction->id])->with("error", "Đặt hàng không thành công");
             }
-        }else{
+        } else {
             return;
         }
-
     }
     public function getOrderSuccess(Request $request)
     {

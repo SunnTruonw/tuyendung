@@ -54,12 +54,19 @@ class Product extends Model
         return $this->belongsTo(CategoryProduct::class, 'category_id', 'id');
     }
 
+    public function stores()
+    {
+        return $this->hasMany(Store::class, "product_id", "id");
+    }
+
     public function comments()
     {
         return $this
             ->belongsToMany(Comment::class, ProductComment::class, 'product_id', 'comment_id')
             ->withTimestamps();
     }
+
+
 
     public static function getHtmlOption($parentId = "")
     {

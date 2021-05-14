@@ -59,9 +59,6 @@ Route::group(['prefix' => 'about-us'], function () {
     Route::get('/', 'HomeController@aboutUs')->name('about-us');
 });
 
-
-
-
 Route::group(['prefix' => 'product'], function () {
     Route::get('/', 'ProductController@index')->name('product.index');
     Route::get('{id}-{slug}', 'ProductController@detail')->name('product.detail');
@@ -70,6 +67,7 @@ Route::group(['prefix' => 'product'], function () {
 
 Route::group(['prefix' => 'profile'], function () {
     Route::get('/', 'ProfileController@index')->name('profile.index');
+    Route::get('/history', 'ProfileController@history')->name('profile.history');
     Route::get('/list-rose', 'ProfileController@listRose')->name('profile.listRose');
     Route::get('/list-member', 'ProfileController@listMember')->name('profile.listMember');
     Route::get('/create-member', 'ProfileController@createMember')->name('profile.createMember');

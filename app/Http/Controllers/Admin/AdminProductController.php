@@ -54,8 +54,10 @@ class AdminProductController extends Controller
             $htmlselect = $this->categoryProduct->getHtmlOption();
         }
         $where = [];
+        $orWhere=null;
         if ($request->input('keyword')) {
             $where[] = ['name', 'like', '%' . $request->input('keyword') . '%'];
+            $orWhere=['masp', 'like', '%' . $request->input('keyword') . '%'];
         }
         if ($request->has('fill_action') && $request->input('fill_action')) {
             $key = $request->input('fill_action');
@@ -79,6 +81,10 @@ class AdminProductController extends Controller
         }
         if ($where) {
             $data = $data->where($where);
+        }
+      //  dd($orWhere);
+        if ($orWhere) {
+            $data = $data->orWhere(...$orWhere);
         }
         if ($request->input('order_with')) {
             $key = $request->input('order_with');
@@ -139,10 +145,11 @@ class AdminProductController extends Controller
         } else {
             $data = $data->orderBy("created_at", "DESC");
         }
+      //  dd($this->product->select('*', \App\Models\Store::raw('Sum(quantity) as total')->whereRaw('products.id','stores.product_id'))->orderBy('total')->paginate(15));
+
         $data = $data->paginate(15);
 
-        return view(
-            "admin.pages.product.list",
+        return view("admin.pages.product.list",
             [
                 'data' => $data,
                 'totalProduct'=>$totalProduct,

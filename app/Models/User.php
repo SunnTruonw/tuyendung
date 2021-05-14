@@ -10,6 +10,7 @@ use App\Models\Point;
 class User extends Authenticatable
 {
     use Notifiable;
+    // status [1=>'khởi tạo chưa điền hoàn thiện thông tin',2=>'đã điền hoàn thiện thông tin']
 
     /**
      * The attributes that are mass assignable.

@@ -180,5 +180,13 @@ Route::group(['prefix' => 'admin','namespace'=>'Admin','middleware'=>'auth:admin
         Route::post('/update/{id}', "AdminBankController@update")->name("admin.bank.update")->middleware('can:bank-edit');
         Route::get('/destroy/{id}', "AdminBankController@destroy")->name("admin.bank.destroy")->middleware('can:bank-delete');
     });
+    Route::group(['prefix' => 'store'], function () {
+        Route::get('/', "AdminStoreController@index")->name("admin.store.index")->middleware('can:bank-list');
+        Route::get('/create', "AdminStoreController@create")->name("admin.store.create")->middleware('can:bank-add');
+        Route::post('/store', "AdminStoreController@store")->name("admin.store.store")->middleware('can:bank-add');
+        Route::get('/edit/{id}', "AdminStoreController@edit")->name("admin.store.edit")->middleware('can:bank-edit');
+        Route::post('/update/{id}', "AdminStoreController@update")->name("admin.store.update")->middleware('can:bank-edit');
+        Route::get('/destroy/{id}', "AdminStoreController@destroy")->name("admin.store.destroy")->middleware('can:bank-delete');
+    });
 
 });

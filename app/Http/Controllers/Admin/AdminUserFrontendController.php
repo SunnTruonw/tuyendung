@@ -138,15 +138,15 @@ class AdminUserFrontendController extends Controller
         try {
             DB::beginTransaction();
 
-            for ($k = 1; $k <= 100; $k++) {
+         //   for ($k = 1; $k <= 100; $k++) {
 
                 // $k = "";
                 //  $parent_id2 = $this->getParentIdOfNewUser();
                 $parent_id2 = $this->user->getParentIdOfNewUser();
                 //   dd( $parent_id2);
                 $dataAdminUserFrontendCreate = [
-                    "name" => $request->input('name') . $k,
-                    "username" => $request->input('username') . $k,
+                    "name" => $request->input('name') ,
+                    "username" => $request->input('username'),
                     "email" => $request->input('email'),
                     'order' => $this->user->getOrderOfNewUser(),
                     "parent_id" => 0,
@@ -190,7 +190,7 @@ class AdminUserFrontendController extends Controller
                     }
                     $j++;
                 }
-            }
+           // }
 
             // thêm số điểm cây 20 lớp
             // $i = 1;
@@ -333,11 +333,21 @@ class AdminUserFrontendController extends Controller
             $user   =  $this->user->find($id);
             $active = $user->active;
             $activeUpdate = 0;
+
             if ($active) {
                 // $activeUpdate = 0;
             } else {
+
+                $parent_id2 = $this->user->getParentIdOfNewUser();
                 $activeUpdate = 1;
                 $orderUpdate = $this->user->getOrderOfNewUser();
+                $updateResult =  $user->update([
+                    'active' => $activeUpdate,
+                    'order' => $orderUpdate,
+                    'parent_id2'=>$parent_id2,
+                ]);
+                $user   =  $this->user->find($id);
+
                 $j = 1;
                 $userLoop2 = $user;
                 while ($j <= 7) {
@@ -355,11 +365,7 @@ class AdminUserFrontendController extends Controller
                     $j++;
                 }
             }
-            $updateResult =  $user->update([
-                'active' => $activeUpdate,
-                'order' => $orderUpdate,
-            ]);
-            $user   =  $this->user->find($id);
+
             DB::commit();
             if ($updateResult) {
                 return response()->json([

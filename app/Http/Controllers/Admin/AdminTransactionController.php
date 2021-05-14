@@ -15,11 +15,15 @@ class AdminTransactionController extends Controller
     private  $transaction;
     private $unit;
     private $listStatus;
+    private $typePoint;
+    private $rose;
     public function __construct(Transaction $transaction)
     {
         $this->transaction = $transaction;
         $this->unit = "đ";
         $this->listStatus = $this->transaction->listStatus;
+        $this->typePoint = config('point.typePoint');
+        $this->rose = config('point.rose');
     }
     public function index(Request $request)
     {
@@ -109,6 +113,28 @@ class AdminTransactionController extends Controller
                 break;
             case 3:
                 $status += 1;
+
+                   // thêm số điểm cây 20 lớp
+                   $i = 1;
+                   $user=$transaction->user;
+                   $userLoop = $user;
+                   while ($i <= 20) {
+                     //  dd($userLoop->parent2()->first());
+
+                       if ($userLoop->parent_id != 0) {
+
+                           $userLoop->parent()->first()->points()->create([
+                               'type' => $this->typePoint[2]['type'],
+                               'point' => (float)$this->rose[$i]['percent']*moneyToPoint($transaction->total)/100,
+                               'active' => 1,
+                               'userorigin_id' => $user->id,
+                           ]);
+                           $userLoop = $userLoop->parent()->first();
+                       } else {
+                           break;
+                       }
+                       $i++;
+                   }
                 break;
             case 4:
                 break;

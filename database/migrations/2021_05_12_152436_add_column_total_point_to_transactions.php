@@ -15,7 +15,7 @@ class AddColumnTotalPointToTransactions extends Migration
     {
         Schema::table('transactions', function (Blueprint $table) {
             //
-            $table->bigInteger('point')->unsigned();
+            $table->float('point',10,2)->unsigned();
         });
     }
 

@@ -66,6 +66,23 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function history(Request $request)
+    {
+
+        $user = auth()->guard()->user();
+        $sumEachType = $this->point->sumEachType($user->id);
+        $sumPointCurrent = $this->point->sumPointCurrent($user->id);
+        
+
+
+        return view('frontend.pages.profile', [
+            'user' => $user,
+            'sumEachType' => $sumEachType,
+            'sumPointCurrent' => $sumPointCurrent,
+            'typePoint' => $this->typePoint,
+            'openPay' => $openPay,
+        ]);
+    }
 
     public function editInfo()
     {
@@ -176,7 +193,6 @@ class ProfileController extends Controller
     public function storeMember(ValidateAddUser $request)
     {
         $user = auth()->guard()->user();
-
         try {
             DB::beginTransaction();
             $dataAdminUserFrontendCreate = [
@@ -196,7 +212,6 @@ class ProfileController extends Controller
                     'type' => $this->typePoint[4]['type'],
                     'point' => $request->input('startpoint'),
                     'active' => 1,
-
                 ]);
             }
             $user->points()->create([
@@ -226,13 +241,13 @@ class ProfileController extends Controller
                 // Trừ điểm rút
                 $user->points()->create([
                     'type' => $this->typePoint[5]['type'],
-                    'point' => -(int)$request->input('pay'),
+                    'point' => -(float)$request->input('pay'),
                     'active' => 1,
                 ]);
                 $user->pays()->create([
                     'status' => $this->typePay[1]['type'],
                     'user_id' => $user->id,
-                    'point' => (int)$request->input('pay'),
+                    'point' => (float)$request->input('pay'),
                     'active' => 1,
                 ]);
 

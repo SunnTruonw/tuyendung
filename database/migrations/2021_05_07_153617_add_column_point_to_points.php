@@ -15,7 +15,7 @@ class AddColumnPointToPoints extends Migration
     {
         Schema::table('points', function (Blueprint $table) {
             //
-            $table->bigInteger("point");
+            $table->float('point',10,2);
         });
     }
 

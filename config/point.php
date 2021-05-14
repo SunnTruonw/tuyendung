@@ -139,6 +139,21 @@
                 'name' => 'Rút không thành công. Đã hoàn điểm lại',
             ],
         ],
+        'typeStore' => [
+            1 => [
+                'type' => 1,
+                'name' => 'Nhập kho',
+
+            ],
+            2 => [
+                'type' => 2,
+                'name' => 'Đã đặt hàng đang chờ xuất kho',
+            ],
+            3 =>  [
+                'type' => 3,
+                'name' => 'Xuất kho',
+            ],
+        ],
         // thời gian mở cổng rút điểm
         'datePay'=>[
             'start'=>1,

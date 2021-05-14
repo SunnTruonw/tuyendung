@@ -18,7 +18,7 @@ class CreatePaysTable extends Migration
             $table->bigInteger('user_id')->unsigned();
             $table->tinyInteger("active")->default(1);
             $table->tinyInteger("status");
-            $table->bigInteger("point");
+            $table->float("point",10,2);
             $table->timestamps();
         });
     }

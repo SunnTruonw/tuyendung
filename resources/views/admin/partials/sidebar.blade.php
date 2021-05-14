@@ -137,6 +137,43 @@
                    </li>
                 </ul>
              </li>
+
+             <li class="nav-item">
+                <a href="#" class="nav-link">
+                   <i class="nav-icon fas fa-tachometer-alt"></i>
+                   <p>
+                     Quản lý kho
+                      <i class="right fas fa-angle-left"></i>
+                   </p>
+                </a>
+                <ul class="nav nav-treeview">
+                   <li class="nav-item">
+                      <a href="{{route('admin.store.index')}}" class="nav-link">
+                         <i class="far fa-circle nav-icon"></i>
+                         <p>Danh sách xuất nhập</p>
+                      </a>
+                   </li>
+                   <li class="nav-item">
+                      <a href="{{route('admin.store.create',['type'=>1])}}" class="nav-link">
+                         <i class="far fa-circle nav-icon"></i>
+                         <p>Nhập kho</p>
+                      </a>
+                   </li>
+                   <li class="nav-item">
+                      <a href="{{route('admin.store.create',['type'=>3])}}" class="nav-link">
+                          <i class="far fa-circle nav-icon"></i>
+                          <p>Xuất kho</p>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{route('admin.product.index')}}" class="nav-link">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>SỐ lượng sản phẩm trong kho</p>
+                        </a>
+                    </li>
+                </ul>
+             </li>
+
              <li class="nav-item">
                 <a href="#" class="nav-link">
                    <i class="nav-icon fas fa-tachometer-alt"></i>

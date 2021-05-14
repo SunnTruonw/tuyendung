@@ -24,6 +24,7 @@ ul{
                                         <div class="info-box">
                                         <span class="info-box-icon bg-info"><i class="fas fa-calculator"></i></span>
                                         <div class="info-box-content">
+
                                             <span class="info-box-text">Số giao dịch {{ $item['name'] }} </span>
                                             <span class="info-box-number"><strong>{{ number_format($item['total']??0) }}</strong> / tổng số {{ $totalTransaction }}</span>
                                         </div>
@@ -119,7 +120,20 @@ ul{
                                                  </li>
                                              </ul>
                                          </td>
-                                         <td class="text-nowrap"><span class="tag tag-success">{{ number_format($transaction->total) }}</span></td>
+                                         <td class="text-nowrap">
+                                             {{-- <span class="tag tag-success"></span> --}}
+                                             <ul>
+                                                <li>
+                                                  <strong>Tổng giá trị đơn hàng:</strong>  {{ number_format($transaction->total) }}
+                                                </li>
+                                                <li>
+                                                 <strong>Tri trả bằng tiền:</strong>   {{ number_format($transaction->money)}} đ
+                                                </li>
+                                                <li>
+                                                    <strong>Tri trả bằng điểm:</strong>   {{ number_format($transaction->point)}} điểm
+                                                </li>
+                                            </ul>
+                                            </td>
                                          <td class="text-nowrap">{{ $transaction->user_id?'Thành viên':'Khách vãng lai' }}</td>
                                          <td class="text-nowrap status" data-url="{{ route('admin.transaction.loadNextStepStatus',['id'=>$transaction->id]) }}">
                                             @include('admin.components.status',[
