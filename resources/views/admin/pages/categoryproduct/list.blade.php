@@ -1,12 +1,39 @@
 @extends('admin.layouts.main')
 @section('title',"danh sach danh mục sản phẩm")
 @section('css')
-
+    <style>
+         .card-header  {
+            color: #4c4d5a;
+            border-color: #dcdcdc;
+            background: #f6f6f6;
+            text-shadow: 0 -1px 0 rgb(50 50 50 / 0%);
+        }
+        .title-card-recusive{
+            font-size: 13px;
+            background: #ECF0F5;
+        }
+        .lb_list_category{
+            font-size: 13px;
+            margin-bottom: 0;
+        }
+        .fa-check-circle{
+            color: #169F85;
+            font-size: 18px;
+        }
+        .fa-check-circle{
+            color: #169F85;
+            font-size: 18px;
+        }
+        .fa-times-circle{
+            color: #f23b3b;
+           font-size: 18px;
+        }
+    </style>
 @endsection
 @section('content')
 <div class="content-wrapper">
 
-    @include('admin.partials.content-header',['name'=>"Danh mục sản phẩm","key"=>"Danh sách danh mục"])
+    @include('admin.partials.content-header',['name'=>"Danh mục dịch vụ","key"=>"Danh sách danh mục"])
 
     <!-- Main content -->
     <div class="content">
@@ -22,9 +49,9 @@
                     {{session("error")}}
                 </div>
                 @endif
-                <div class="d-flex justify-content-between ">
-                    <a href="{{route('admin.categoryproduct.create')}}" class="btn  btn-info btn-md mb-2">+ Thêm mới</a>
-                    <div class="group-button-right d-flex">
+                <div class="d-flex justify-content-end">
+                    <a href="{{route('admin.categoryproduct.create',['parent_id'=>request()->parent_id])}}" class="btn  btn-info btn-md mb-2">+ Thêm mới</a>
+                    {{-- <!--<div class="group-button-right d-flex">
                         <form action="{{route('admin.categoryproduct.import.excel.database')}}" class="form-inline" method="post" enctype="multipart/form-data">
                             @csrf
                             <div class="form-group" style="max-width: 250px">
@@ -36,17 +63,35 @@
                             @csrf
                             <input type="submit" value="Export Execel" class=" btn btn-danger">
                         </form>
+                    </div>--> --}}
+                </div>
+                <div class="card card-outline card-info">
+                    <div class="card-header pt-2 pb-2">
+                        <div class="cart-title">
+                            <i class="fas fa-list"></i> Danh mục
+                        </div>
                     </div>
                 </div>
+                @if (isset($parentBr)&&$parentBr)
+                <ol class="breadcrumb">
+                  <li><a href="{{ route('admin.categoryproduct.index',['parent_id'=>0]) }}">Root</a></li>
 
+                  @foreach ($parentBr->breadcrumb as $item)
+                   <li><a href="{{ route('admin.categoryproduct.index',['parent_id'=>$item['id']]) }}">{{ $item['name'] }}</a></li>
+                  @endforeach
+                  <li><a href="{{ route('admin.categoryproduct.index',['parent_id'=>$parentBr->id]) }}">{{ $parentBr->name }}</a></li>
+                </ol>
+                @endif
 
                 <div class="card card-outline card-primary">
-                    <div class="card-body table-responsive lb-list-category">
+                    <div class="card-body table-responsive lb-list-category" style="padding: 0; font-size:13px;">
                         @include('admin.components.category', [
                             'data' => $data,
                             'routeNameEdit'=>'admin.categoryproduct.edit',
                             'routeNameAdd'=>'admin.categoryproduct.create',
                             'routeNameDelete'=>'admin.categoryproduct.destroy',
+                            'routeNameOrder'=>'admin.loadOrderVeryModel',
+                            'table'=>'category_products',
                         ])
                     </div>
                 </div>

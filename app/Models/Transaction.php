@@ -17,28 +17,28 @@ class Transaction extends Model
     // 3 Đang vận chuyển
     // 4 Hoàn thành
     // 0 Đơn hàng đã hủy
-    public $listStatus = [
-        1 => [
-            'status' => 1,
-            'name' => 'Chưa sử lý',
-        ],
-        2 => [
-            'status' => 2,
-            'name' => 'Nhận đơn',
-        ],
-        3 => [
-            'status' => 3,
-            'name' => 'Đang vận chuyển',
-        ],
-        4 => [
-            'status' => 4,
-            'name' => 'Hoàn thành',
-        ],
-        -1 => [
-            'status' => -1,
-            'name' => 'Hủy bỏ',
-        ],
-    ];
+    // public $listStatus = [
+    //     1 => [
+    //         'status' => 1,
+    //         'name' => 'Chưa sử lý',
+    //     ],
+    //     2 => [
+    //         'status' => 2,
+    //         'name' => 'Nhận đơn',
+    //     ],
+    //     3 => [
+    //         'status' => 3,
+    //         'name' => 'Đang vận chuyển',
+    //     ],
+    //     4 => [
+    //         'status' => 4,
+    //         'name' => 'Hoàn thành',
+    //     ],
+    //     -1 => [
+    //         'status' => -1,
+    //         'name' => 'Hủy bỏ',
+    //     ],
+    // ];
 
     public function orders()
     {
@@ -71,5 +71,9 @@ class Transaction extends Model
     public function commune()
     {
         return $this->belongsTo(Commune::class, 'commune_id', 'id');
+    }
+    public function shop()
+    {
+        return $this->belongsTo(User::class, 'origin_id', 'id');
     }
 }

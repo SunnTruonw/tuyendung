@@ -30,14 +30,18 @@ class AdminCategoryProductController extends Controller
         $this->categoryProduct = $categoryProduct;
     }
     //
-    public function index()
+    public function index(Request $request)
     {
+        $parentBr = null;
+        if ($request->has('parent_id')) {
+            $data = $this->categoryProduct->where('parent_id', $request->input('parent_id'))->orderby('order')->orderBy("created_at", "desc")->paginate(15);
+            if ($request->input('parent_id')) {
+                $parentBr = $this->categoryProduct->find($request->input('parent_id'));
+            }
+        } else {
+            $data = $this->categoryProduct->where('parent_id', 0)->orderby('order')->orderBy("created_at", "desc")->paginate(15);
+        }
 
-        // $pdf = \App::make('dompdf.wrapper');
-        // $pdf->loadHTML('<h1>Test</h1>');
-        // return $pdf->stream();
-
-        $data = $this->categoryProduct->setAppends(['breadcrumb'])->where('parent_id', 0)->orderBy("created_at", "desc")->paginate(15);
         //  dd(config('excel_database.category_product.title'));
         //  dd( view(
         //      "admin.pages.categoryproduct.list",
@@ -45,10 +49,10 @@ class AdminCategoryProductController extends Controller
         //          'data' => $data
         //      ]
         //  )->renderSections()['content']);
-        return view(
-            "admin.pages.categoryproduct.list",
+        return view("admin.pages.categoryproduct.list",
             [
                 'data' => $data,
+                'parentBr' => $parentBr,
             ]
         );
     }
@@ -61,8 +65,7 @@ class AdminCategoryProductController extends Controller
             $htmlselect = $this->categoryProduct->getHtmlOption();
         }
 
-        return view(
-            "admin.pages.categoryproduct.add",
+        return view("admin.pages.categoryproduct.add",
             [
                 'option' => $htmlselect,
                 'request' => $request
@@ -71,7 +74,6 @@ class AdminCategoryProductController extends Controller
     }
     public function store(ValidateAddCategoryProduct $request)
     {
-
         try {
             DB::beginTransaction();
             $dataCategoryProductCreate = [
@@ -80,7 +82,9 @@ class AdminCategoryProductController extends Controller
                 "description" => $request->input('description'),
                 "description_seo" => $request->input('description_seo'),
                 "title_seo" => $request->input('title_seo'),
+                "keyword_seo" => $request->input('keyword_seo'),
                 "content" => $request->input('content'),
+                'order'=>$request->input('order'),
                 "active" => $request->active,
                 "parent_id" => $request->parentId,
                 "admin_id" => auth()->guard('admin')->id()
@@ -96,11 +100,11 @@ class AdminCategoryProductController extends Controller
             $this->categoryProduct->create($dataCategoryProductCreate);
 
             DB::commit();
-            return redirect()->route("admin.categoryproduct.create", ['parent_id' => $request->parentId])->with("alert", "Thêm danh mục sản phẩm thành công");
+            return redirect()->route("admin.categoryproduct.index", ['parent_id' => $request->parentId])->with("alert", "Thêm danh mục sản phẩm thành công");
         } catch (\Exception $exception) {
             DB::rollBack();
             Log::error('message' . $exception->getMessage() . 'line :' . $exception->getLine());
-            return redirect()->route('admin.categoryproduct.create', ['parent_id' => $request->parentId])->with("error", "Thêm danh mục sản phẩm không thành công");
+            return redirect()->route('admin.categoryproduct.index', ['parent_id' => $request->parentId])->with("error", "Thêm danh mục sản phẩm không thành công");
         }
     }
     public function edit($id)
@@ -123,8 +127,10 @@ class AdminCategoryProductController extends Controller
                 "description" => $request->input('description'),
                 "description_seo" => $request->input('description_seo'),
                 "title_seo" => $request->input('title_seo'),
+                "keyword_seo" => $request->input('keyword_seo'),
                 "content" => $request->input('content'),
                 "active" => $request->active,
+                'order'=>$request->input('order'),
                 "parent_id" => $request->parentId,
                 "admin_id" => auth()->guard('admin')->id()
             ];
@@ -140,12 +146,12 @@ class AdminCategoryProductController extends Controller
             $this->categoryProduct->find($id)->update($dataCategoryProductUpdate);
 
             DB::commit();
-            return redirect()->route("admin.categoryproduct.index")->with("alert", "Sửa sản phẩm thành công");
+            return redirect()->route("admin.categoryproduct.index", ['parent_id' => $request->parentId])->with("alert", "Sửa sản phẩm thành công");
         } catch (\Exception $exception) {
             //throw $th;
             DB::rollBack();
             Log::error('message' . $exception->getMessage() . 'line :' . $exception->getLine());
-            return redirect()->route('admin.categoryproduct.index')->with("error", "Sửa bài viết không thành công");
+            return redirect()->route('admin.categoryproduct.index', ['parent_id' => $request->parentId])->with("error", "Sửa bài viết không thành công");
         }
     }
     public function destroy($id)

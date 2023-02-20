@@ -27,5 +27,15 @@
             {{ $status['name'] }}
         </span>
     @endif
+
 @endforeach
+@if ($dataStatus->thanhtoan)
+<span  class="btn btn-success">
+    Đã thanh toán
+</span>
+@else
+<span  class="btn btn-sm btn-warning">
+    Chưa thanh toán
+</span>
+@endif
 

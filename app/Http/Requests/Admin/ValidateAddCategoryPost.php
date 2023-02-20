@@ -28,9 +28,11 @@ class ValidateAddCategoryPost extends FormRequest
     public function rules()
     {
         return [
-            "name" => "required|min:3|max:100",
+            "name" => "required|min:1|max:191",
             "slug" => [
                 "required",
+                "max:191",
+                "min:1",
                  Rule::unique("App\Models\CategoryPost",'slug')->where(function ($query) {
                     return $query->where('deleted_at', null);
                 })
@@ -38,15 +40,17 @@ class ValidateAddCategoryPost extends FormRequest
             "icon" => "mimes:jpeg,jpg,png,svg|nullable|max:3000",
             "avatar" => "mimes:jpeg,jpg,png,svg|nullable|max:3000",
             "active" => "required",
-            "checkrobot" => "accepted"
+            "title_seo"=>"nullable|min:1|max:191",
+            "description_seo"=>"nullable|min:1|max:191",
+            "keyword_seo"=>"nullable|min:1|max:191",
         ];
     }
     public function messages()
     {
         return     [
             "name.required" => "Name category is required",
-            "name.min" => "Name category > 3",
-            "name.max" => "Name category < 100",
+            "name.min" => "Name category > 1",
+            "name.max" => "Name category < 191",
             "slug.required" => "slug category is required",
             "slug.unique" => "slug đã tồn tại",
             "icon.mimes" => "icon category in jpeg,jpg,png,svg",

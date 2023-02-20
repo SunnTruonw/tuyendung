@@ -34,7 +34,7 @@
                                 @enderror
                             </div>
                             <div class="form-group">
-                                <label for="">slug</label>
+                                <label for="">Slug</label>
                                 <input type="text" class="form-control" id="slug" value="{{ $data->slug }}" name="slug" placeholder="Nhập slug">
                             </div>
                             @error('slug')
@@ -53,12 +53,12 @@
                             <div class="form-group">
                                 <div class="form-check-inline">
                                 <label class="form-check-label">
-                                <input type="radio" class="form-check-input" value="1" name="active" @if( $data->active==="1"||old('active')===null||old('active')==="1") {{'checked'}}  @endif>Active
+                                <input type="radio" class="form-check-input" value="1" name="active" @if( $data->active==="1"||old('active')===null||old('active')==="1") {{'checked'}}  @endif>Hiện
                                 </label>
                                 </div>
                                 <div class="form-check-inline">
                                 <label class="form-check-label">
-                                    <input type="radio" class="form-check-input" value="0" @if( $data->active==="0"||old('active')==="0"){{'checked'}}  @endif name="active">Disable
+                                    <input type="radio" class="form-check-input" value="0" @if( $data->active==="0"||old('active')==="0"){{'checked'}}  @endif name="active">Ẩn
                                 </label>
                                 </div>
                             </div>
@@ -67,13 +67,13 @@
                             @enderror
                             <div class="form-group form-check">
                             <input type="checkbox" class="form-check-input" name="checkrobot" id="checkrobot">
-                            <label class="form-check-label" for="checkrobot" required>Check me out</label>
+                            <label class="form-check-label" for="checkrobot" required>Tôi đồng ý</label>
                             </div>
                             @error('checkrobot')
                             <div class="alert alert-danger">{{ $message }}</div>
                             @enderror
                             <div class="form-group">
-                                <button type="reset" class="btn btn-danger">Reset</button>
+                                <button type="reset" class="btn btn-danger">Làm mới</button>
                                 <button type="submit" class="btn btn-primary">Chấp nhận</button>
                             </div>
                         </div>

@@ -8,7 +8,7 @@
 
     @if ($childs->childs->count())
         <ul class="">
-            @foreach ($childs->childs as $childValue2)
+            @foreach ($childs->childs()->where('active',1)->orderby('order')->latest()->get() as $childValue2)
                 @include('frontend.components.category-child', ['childs' => $childValue2])
             @endforeach
         </ul>

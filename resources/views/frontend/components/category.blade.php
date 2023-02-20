@@ -23,7 +23,7 @@
 
             @if ($value->childs->count())
                 <ul class="menu-side-bar-leve-2">
-                    @foreach ($value->childs as $childValue)
+                    @foreach ($value->childs()->where('active',1)->orderby('order')->latest()->get() as $childValue)
                         @include('frontend.components.category-child', ['childs' => $childValue])
                     @endforeach
                 </ul>

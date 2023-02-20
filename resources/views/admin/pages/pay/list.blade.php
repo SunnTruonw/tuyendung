@@ -30,6 +30,88 @@
                 </div>
                 @endif
                 {{-- <a href="{{route('admin.user.create')}}" class="btn  btn-info btn-md mb-2">+ Thêm mới</a> --}}
+                <div class="d-flex justify-content-end">
+
+                    <div class="group-button-right d-flex">
+                        {{-- <form action="{{route('admin.pay.import.excel.database')}}" class="form-inline" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="form-group" style="max-width: 250px">
+                                <input type="file" class="form-control-file" name="fileExcel" accept=".xlsx" required>
+                              </div>
+                            <input type="submit" value="Import Execel" class=" btn btn-info ml-1">
+                        </form> --}}
+                        <form class="form-inline ml-3" action="{{route('admin.pay.export.excel.database')}}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <label for="">Ngày bắt đầu:</label>
+                            <div class="d-inline-block">
+                                <input type="date" class="form-control @error('start') is-invalid  @enderror" placeholder="" id="" name="start" value="{{ old('start')}}">
+                                @error('start')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <label for="">Ngày kết thúc:</label>
+                            <div class="d-inline-block">
+
+                                <input type="date" class="form-control @error('end') is-invalid  @enderror" placeholder="" id="" name="end" value="{{ old('end')}}">
+                                @error('end')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <input type="submit" value="Export Execel" class=" btn btn-danger">
+                        </form>
+                    </div>
+                </div>
+                <div class="card-header">
+                    <div class="card-tools w-100 mb-3">
+                        <form action="{{ route('admin.pay.index') }}" method="GET">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <div class="row">
+                                        <div class="col-md-3"></div>
+                                        <div class="form-group col-md-3 mb-0">
+                                            <input id="keyword" value="{{ $keyword }}" name="keyword" type="text" class="form-control" placeholder="Từ khóa">
+                                            <div id="keyword_feedback" class="invalid-feedback">
+
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-3 mb-0" style="min-width:100px;">
+                                            <select id="order" name="order_with" class="form-control">
+                                                <option value="">-- Sắp xếp theo --</option>
+                                                <option value="dateASC" {{ $order_with=='dateASC'? 'selected':'' }}>Ngày tạo tăng dần</option>
+                                                <option value="dateDESC" {{ $order_with=='dateDESC'? 'selected':'' }}>Ngày tạo giảm dần</option>
+                                                <option value="statusASC" {{ $order_with=='statusASC'? 'selected':'' }}>Trạng thái</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-3 mb-0" style="min-width:100px;">
+                                            <select id="" name="fill_action" class="form-control">
+                                                <option value="">-- Lọc --</option>
+                                                <option value="cancel" {{ $fill_action=='cancel'? 'selected':'' }}>Đã hủy</option>
+                                                <option value="complate" {{ $fill_action=='complate'? 'selected':'' }}>Đã hoàn thành</option>
+                                                <option value="handle" {{ $fill_action=='handle'? 'selected':'' }}>Chờ xử lý</option>
+                                            </select>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-1 mb-0">
+                                    <button type="submit" class="btn btn-success w-100">Search</button>
+                                </div>
+                                <div class="col-md-1 mb-0">
+                                    <a  class="btn btn-danger w-100" href="{{ route('admin.pay.index') }}">Reset</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-tools text-right pl-3 pr-3 pt-2 pb-2">
+                    <div class="count">
+                        Tổng số bản ghi <strong>{{  $data->count() }}</strong> / {{ $totalPay }}
+                     </div>
+                  </div>
+
+
+
                 <div class="card card-outline card-primary">
                     <form action="{{route('admin.pay.updateDrawPointAll')}}" method="GET" id="updateAll" name="updateAll">
                         @csrf
@@ -99,6 +181,7 @@
                         </div>
                     </form>
                 </div>
+
             </div>
             <div class="col-md-12">
                 {{$data->links()}}

@@ -1,76 +1,93 @@
-@extends('layouts.app')
-
+{{-- @extends('layouts.app') --}}
+@extends('frontend.layouts.main')
+@section('title', 'Đăng nhập tài khoản')
+@section('keywords', 'Đăng nhập tài khoản')
+@section('description', 'Đăng nhập tài khoản')
+@section('abstract', 'Đăng nhập tài khoản')
+@section('image', asset(optional($header['seoHome'])->image_path))
+@section('css')
+    <link rel="stylesheet" type="text/css" href="{{ asset('frontend/css/auth.css') }}">
+@endsection
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                {{-- <div class="card-header">{{ __('Login') }}</div> --}}
-                <div class="card-header"> {{ isset($url) ? ucwords($url) : ""}} {{ __('Login') }}</div>
-                <div class="card-body">
-                    @isset($url)
-                    <form method="POST" action='{{ url("login/$url") }}' aria-label="{{ __('Login') }}">
-                    @else
-                    <form method="POST" action="{{ route('login') }}" aria-label="{{ __('Login') }}">
-                    @endisset
-                    {{-- <form method="POST" action="{{ route('login') }}"> --}}
-                        @csrf
-
-                        <div class="form-group row">
-                            <label for="username" class="col-md-4 col-form-label text-md-right">{{ __('E-Mail Address') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="username" type="text" class="form-control @error('username') is-invalid @enderror" name="username" value="{{ old('username') }}" required autocomplete="username" autofocus>
-
-                                @error('username')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="password" class="col-md-4 col-form-label text-md-right">{{ __('Password') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
-
-                                @error('password')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <div class="col-md-6 offset-md-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-
-                                    <label class="form-check-label" for="remember">
-                                        {{ __('Remember Me') }}
-                                    </label>
+<div class="wrapper-in">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                @if (session('status'))
+                    <div class="alert alert-warning">
+                        {{ session('status') }}
+                    </div>
+                @endif
+                @if (session('statusSuccess'))
+                    <div class="alert alert-success">
+                        {{ session('statusSuccess') }}
+                    </div>
+                @endif
+                <div class="box-auth" id="login">
+                    <div class="box-center__body">
+                        <div class="box-center__form auth">
+                            <div class="auth-right">
+								<div class="auth-image">
+                                    <img src="{{ asset(optional($data)->image_path) }}" alt="{{ optional($data)->name }}">
                                 </div>
+                                <div class="auth-title">ĐẠI LÝ ĐÃ CÓ TÀI KHOẢN VUI LÒNG ĐĂNG NHẬP:</div>
+                                <div class="auth-form">
+                                    <form action="{{ route('login') }}" method="POST">
+                                        @csrf
+                                        <div class="form-group">
+                                            <label for="">Tên đăng nhập :</label>
+                                            <input type="text" name="username" class="form-control @error('username') is-invalid @enderror"
+                                                placeholder="Tên đăng nhập" required="" value="{{ old('username') }}">
+                                            @error('username')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="">Mật khẩu:</label>
+                                            <input type="password" name="password" class="form-control @error('password') is-invalid @enderror"
+                                                placeholder="Mật khẩu" required="">
+                                            @error('password')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                        <div class="form-group">
+                                            <a href="{{ route('password.request') }}" target="blank"
+                                                class="forgot-password">Quên mật khẩu?</a>
+                                        </div>
+                                        <div class="form-group checkbox">
+                                            <input type="checkbox" class="btn-checkbox" name="remember"
+                                                {{ old('remember') ? 'checked' : '' }}>
+                                            <label for="remember-me">Ghi nhớ đăng nhập</label>
+                                        </div>
+                                        <div class="form-submit">
+                                            {{-- <input type="hidden" id="has_comment" value="false"> --}}
+                                            <button type="submit" class="btn btn-primary">Đăng nhập</button>
+                                        </div>
+                                    </form>
+                                </div>
+								<div class="auth-title">ĐẠI LÝ CHƯA CÓ TÀI KHOẢN:</div>
+                                <div class="auth-action">
+                                    <a href="{{ route('register') }}" class="btn btn-blue">Đăng ký tài khoản</a>
+                                </div>
+                                {{-- <div class="auth-title">Đăng nhập với:</div>
+                                <div class="auth-social">
+                                    <a href="{{ route('login.social', ['social' => 'facebook']) }}"
+                                        class="btn btn-blue">
+                                        <i class="fab fa-facebook-f"></i>
+                                        Đăng nhập với Facebook</a>
+                                    <a href="{{ route('login.social', ['social' => 'google']) }}" class="btn btn-red">
+                                        <i class="fab fa-google"></i> Đăng nhập với Google</a>
+                                </div> --}}
                             </div>
                         </div>
-
-                        <div class="form-group row mb-0">
-                            <div class="col-md-8 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Login') }}
-                                </button>
-
-                                @if (Route::has('password.request'))
-                                    <a class="btn btn-link" href="{{ route('password.request') }}">
-                                        {{ __('Forgot Your Password?') }}
-                                    </a>
-                                @endif
-                            </div>
-                        </div>
-                    </form>
+                    </div>
                 </div>
+
+
             </div>
         </div>
     </div>

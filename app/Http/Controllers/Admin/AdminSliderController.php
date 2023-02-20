@@ -50,6 +50,7 @@ class AdminSliderController extends Controller
                 "slug" => $request->input('slug'),
                 "description" => $request->input('description'),
                 "active" => $request->input('active'),
+                "order" => $request->input('order')??0,
                 "admin_id" => auth()->guard('admin')->id()
             ];
             $dataUploadImage = $this->storageTraitUpload($request, "image_path", "slider");
@@ -61,12 +62,12 @@ class AdminSliderController extends Controller
             $this->slider->create($dataSliderCreate);
 
             DB::commit();
-            return redirect()->route('admin.slider.create')->with("alert", "Thêm slider thành công");
+            return redirect()->route('admin.slider.index')->with("alert", "Thêm slider thành công");
         } catch (\Exception $exception) {
             //throw $th;
             DB::rollBack();
             Log::error('message' . $exception->getMessage() . 'line :' . $exception->getLine());
-            return redirect()->route('admin.slider.create')->with("error", "Thêm slider không thành công");
+            return redirect()->route('admin.slider.index')->with("error", "Thêm slider không thành công");
         }
     }
     public function edit($id)
@@ -85,6 +86,7 @@ class AdminSliderController extends Controller
                 "slug" => $request->input('slug'),
                 "description" => $request->input('description'),
                 "active" => $request->input('active'),
+                "order" => $request->input('order')??0,
                 "admin_id" => auth()->guard('admin')->id()
             ];
             $dataUploadImage = $this->storageTraitUpload($request, "image_path", "slider");

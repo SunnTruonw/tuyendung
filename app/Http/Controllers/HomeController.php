@@ -4,15 +4,27 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Attribute;
 use App\Models\Setting;
 use App\Models\Post;
 use App\Models\Slider;
 use App\Models\CategoryPost;
 use App\Models\CategoryProduct;
+use App\Helper\AddressHelper;
+use App\Models\City;
+use App\Models\Commune;
+use App\Models\District;
+use App\Models\Review;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class HomeController extends Controller
 {
-
     /**
      * Create a new controller instance.
      *
@@ -24,26 +36,58 @@ class HomeController extends Controller
     private $post;
     private $categoryPost;
     private $categoryProduct;
+    private $city;
+    private $commune;
+    private $district;
+    private $review;
+    private $user;
 
-    private $productSearchLimit     = 6;
+
+    private $productSearchLimit  = 6;
     private $postSearchLimit     = 6;
 
-    private $productHotLimit     = 5;
-    private $productNewLimit     = 5;
-    private $productViewLimit    = 5;
-    private $productPayLimit     = 5;
-    private $sliderLimit         = 5;
-    private $postsHotLimit       = 5;
+    private $productHotLimit     = 8;
+    private $productNewLimit     = 8;
+    private $productViewLimit    = 8;
+    private $productPayLimit     = 8;
+    private $sliderLimit         = 8;
+    private $postsHotLimit       = 8;
     private $unit                = 'đ';
-    public function __construct(Product $product, Setting $setting, Slider $slider, Post $post, CategoryPost $categoryPost, CategoryProduct $categoryProduct)
-    {
-        $this->middleware('auth');
+    private $priceSearch;
+    private $categoryProductOrigin;
+    private $donvi;
+    private $huongnha;
+
+    public function __construct(
+        Product $product,
+        Setting $setting,
+        Slider $slider,
+        Post $post,
+        CategoryPost $categoryPost,
+        CategoryProduct $categoryProduct,
+        City $city,
+        District $district,
+        Commune $commune,
+        Review $review,
+        User $user
+    ) {
+        /*$this->middleware('auth');*/
         $this->product = $product;
         $this->setting = $setting;
         $this->slider = $slider;
         $this->post = $post;
+        $this->city = $city;
+        $this->commune = $commune;
+        $this->district = $district;
         $this->categoryPost = $categoryPost;
         $this->categoryProduct = $categoryProduct;
+        $this->review = $review;
+        $this->user = $user;
+
+        $this->priceSearch = config('web_default.frontend.priceSearch');
+        $this->categoryProductOrigin = 1; // config('web_default.frontend.categoryProductOrigin');
+        $this->donvi = config('web_default.donvi');
+        $this->huongnha = config('web_default.huongnha');
     }
 
     /**
@@ -57,62 +101,10 @@ class HomeController extends Controller
     // }
     public function index(Request $request)
     {
-        // dd(session()->has('cart'));
-        //  $cart=[1=>'test 1'];
-        //  $request->session()->put('cart',  $cart);
-        //   dd($request->session()->get('cart'));
-
-        //  dd($this->categoryPost->setAppends(['slug_full'])->find(15)->slug_full);
-
-        //    dd(menuRecusive($this->categoryPost,13));
-      //  dd($this->categoryPost->find(18)->breadcrumb);
-        $dataSettings = $this->setting->all();
-        // sản phẩm nổi bật
-        $productsHot = $this->product->where([
-            ['active', 1],
-            ['hot', 1],
-        ])->orderByDesc('created_at')->limit($this->productHotLimit)->get();
-        // sản phẩm mới
-        $productsNew = $this->product->where([
-            ['active', 1],
-        ])->orderByDesc('created_at')->limit($this->productNewLimit)->get();
-        // sản phẩm xem nhiều
-        $productsView = $this->product->where([
-            ['active', 1],
-        ])->orderByDesc('view')->limit($this->productViewLimit)->get();
-        // sản phẩm mua nhiều
-        $productsPay = $this->product->where([
-            ['active', 1],
-        ])->orderByDesc('pay')->limit($this->productPayLimit)->get();
-        // lấy slider
-        $sliders = $this->slider->where([
-            ['active', 1],
-        ])->orderByDesc('created_at')->limit($this->sliderLimit)->get();
-        // bài viết nổi bật
-        $postsHot = $this->post->where([
-            ['active', 1],
-            ['hot', 1],
-        ])->orderByDesc('created_at')->limit($this->postsHotLimit)->get();
-
-        $bannerHome = $this->setting->find(18);
-        // danh mục sản phẩm
-        $listIdCategory=$this->categoryProduct->getALlCategoryChildren(67);
-        // dd($listIdCategory);
-        $listCategory= $this->categoryProduct->whereIn(
-            'id',$listIdCategory
-        )->orderByDesc('created_at')->limit(12)->get();
+        $contentHome = $this->setting->find(16);
 
         return view('frontend.pages.home', [
-            'productHot' => $productsHot,
-            'productNew' => $productsNew,
-            'productView' => $productsView,
-            'productPay' => $productsPay,
-            'postsHot'  => $postsHot,
-            'dataSettings' => $dataSettings,
-            'listCategory'=>$listCategory,
-            "slider" => $sliders,
-            "unit" => $this->unit,
-            "bannerHome" => $bannerHome,
+            'contentHome' => $contentHome
         ]);
     }
 
@@ -124,6 +116,8 @@ class HomeController extends Controller
             'name' => $data->name,
             'slug' => makeLink('about-us'),
         ]];
+
+
         return view("frontend.pages.about-us", [
             "data" => $data,
             'breadcrumbs' => $breadcrumbs,
@@ -140,41 +134,90 @@ class HomeController extends Controller
         ]);
     }
 
-    public function search(Request $request){
-        $dataProduct = $this->product;
-        $dataPost = $this->post;
-        $where = [];
-        $req=[];
-        if ($request->input('keyword')) {
-            $where[] = ['name', 'like', '%' . $request->input('keyword') . '%'];
-            $req=[
-                'keyword'=>$request->input('keyword'),
+
+
+    public function storeAjax(Request $request)
+    {
+        //   dd($request->name);
+        // dd($request->ajax());
+        try {
+            DB::beginTransaction();
+
+            $dataContactCreate = [
+                'name' => $request->input('name'),
+                'phone' => $request->input('phone') ?? "",
+                'email' => $request->input('email') ?? "",
+                'sex' => $request->input('sex') ?? 1,
+                'from' => $request->input('from') ?? "",
+                'to' => $request->input('to') ?? "",
+                'service' => $request->input('service') ?? "",
+                'content' => $request->input('content') ?? null,
             ];
+            //  dd($dataContactCreate);
+            $contact = $this->contact->create($dataContactCreate);
+            //  dd($contact);
+            DB::commit();
+            return response()->json([
+                "code" => 200,
+                "html" => 'Gửi thông tin thành công',
+                "message" => "success"
+            ], 200);
+        } catch (\Exception $exception) {
+            //throw $th;
+            DB::rollBack();
+            Log::error('message' . $exception->getMessage() . 'line :' . $exception->getLine());
+            return response()->json([
+                "code" => 500,
+                'html' => 'Gửi thông tin không thành công',
+                "message" => "fail"
+            ], 500);
         }
-        if($where){
-            $dataProduct = $dataProduct->where($where)->orderBy("created_at", "DESC");
-            $dataPost = $dataPost->where($where)->orderBy("created_at", "DESC");
+    }
+
+
+    public function search(Request $request)
+    {
+
+        // $check = $request->check;
+        // if (!$check) {
+        //     return redirect()->route('home.index');
+        // }
+        $contentSearch = $this->setting->find(165);
+        $data = $this->product->with('attributes', 'city', 'attributeChilds');
+        $attributes = Attribute::with('childs', 'translations', 'options')->where('parent_id', 0)->orderBy('order')->get();
+        if ($q = $request->input('keyword')) {
+            $data = $data->where(function ($query) use ($q) {
+                return $query->where('masp', $q)
+                    ->orWhere('phone_chunha', $q);
+            });
         }
-        $dataProduct = $dataProduct->paginate($this->productSearchLimit);
-        $dataPost = $dataPost->paginate($this->postSearchLimit);
-        $breadcrumbs = [[
-            'id' => null,
-            'name' => 'Tìm kiếm',
-            'slug' => makeLink('search',null,null,$req),
-        ]];
-        return view("frontend.pages.search",[
-            'breadcrumbs' => $breadcrumbs,
-            'typeBreadcrumb' => 'search',
-            'dataProduct' => $dataProduct,
-            'dataPost' => $dataPost,
-            'unit' => $this->unit,
-            'seo' => [
-                'title' =>  "Kết quả tìm kiếm",
-                'keywords' =>  "Kết quả tìm kiếm",
-                'description' =>  "Kết quả tìm kiếm",
-                'image' =>  "Kết quả tìm kiếm",
-                'abstract' =>   "Kết quả tìm kiếm",
-            ]
-        ]);
+
+        // dd($data->get());
+
+        if ($data->count() <= 0) {
+            return response()->json([
+                "code" => 500,
+                "message" => "fail"
+            ], 500);
+
+            return false;
+        } else {
+            $data =  $data->orderBy('id', 'asc')->limit(10)->get();
+            $dataFirst =  $data->first();
+
+            return view("frontend.pages.search", [
+                'data' => $data,
+                'attributes' => $attributes,
+                'dataFirst' => $dataFirst,
+                'contentSearch' => $contentSearch
+            ]);
+        }
+    }
+
+    public function paginate($items, $perPage = 5, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
 }

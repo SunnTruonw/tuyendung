@@ -28,9 +28,11 @@ class ValidateEditPost extends FormRequest
     public function rules()
     {
         return [
-            "name"=>"required|min:3|max:250",
+            "name"=>"required|min:1|max:191",
             "slug"=>[
                 "required",
+                "min:1",
+                "max:191",
                 Rule::unique("App\Models\Post", 'slug')->where(function ($query) {
                     $id=request()->route()->parameter('id');
                     return $query->where([
@@ -44,15 +46,17 @@ class ValidateEditPost extends FormRequest
             "avatar"=>"mimes:jpeg,jpg,png,svg|nullable",
             "category_id"=>'exists:App\Models\CategoryPost,id',
             "active"=>"required",
-            "checkrobot"=>"accepted"
+            "title_seo"=>"nullable|min:1|max:191",
+            "description_seo"=>"nullable|min:1|max:191",
+            "keyword_seo"=>"nullable|min:1|max:191",
         ];
     }
     public function messages()
     {
         return [
             "name.required"=>"Name post is required",
-            "name.min"=>"Name post > 3",
-            "name.max"=>"Name post < 250",
+            "name.min"=>"Name post > 1",
+            "name.max"=>"Name post < 191",
             "slug.required"=>"slug post is required",
             "slug.unique"=>"slug post is exits",
             "hot.integer"=>"hot is integer",

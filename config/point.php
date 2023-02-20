@@ -3,43 +3,16 @@
         'typePoint' => [
             1 => [
                 'type' => 1,
-                'name' => 'Điểm được thưởng ban đầu',
-                // mặc định 100
+                'name' => 'Điểm thưởng viết review',
+                'point'=>100
             ],
             2 => [
                 'type' => 2,
-                'name' => 'Điểm được cộng từ hệ thống 20 lớp',
-                // số phằn trăm giá trị đơn hàng khi các con mua
-                // 20 lớp
+                'name' => 'Điểm thưởng trừ khi chọn nhận sách',
+                'point'=>100
             ],
-            3 =>  [
-                'type' => 3,
-                'name' => 'Điểm thưởng từ hệ thống 7 lớp',
-                // điểm cộng từ sơ đồ 7 lớp
-            ],
-            4 =>  [
-                'type' => 4,
-                'name' => 'Nạp từ thành viên',
-            ],
-            5 =>  [
-                'type' => 5,
-                'name' => 'Rút tiền',
-            ],
-            6 =>  [
-                'type' => 6,
-                'name' => 'Mua sản phẩm',
-            ],
-            7 =>  [
-                'type' => 7,
-                'name' => 'Hoàn điểm',
-            ],
-            8 =>  [
-                'type' => 8,
-                'name' => 'Điểm được bắn từ admin',
-            ],
-            'defaultPoint' => 100,
-            'pointReward' => 10,
         ],
+        'trans'=>1,
         'rose' => [
             1 => [
                 'row' => 1,
@@ -163,6 +136,7 @@
         'transferPointDefault'=>10,
         // đơn vị của điểm
         'pointUnit'=>'Điểm',
-        'pointToMoney'=>1000
+        'pointToMoney'=>1000,
+        'namePointDefault'=>"Phạm Văn Hưng",
     ];
 ?>

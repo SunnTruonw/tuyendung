@@ -22,14 +22,29 @@ class AdminSettingController extends Controller
     {
         $this->setting = $setting;
     }
-    public function index()
+    public function index(Request $request)
     {
        // $data = $this->setting->orderBy("created_at", "desc")->paginate(10);
-        $data = $this->setting->setAppends(['breadcrumb'])->where('parent_id',0)->orderBy("created_at", "desc")->paginate(15);
-        return view(
-            "admin.pages.setting.list",
+        // $data = $this->setting->setAppends(['breadcrumb'])->where('parent_id',0)->orderBy("created_at", "desc")->paginate(15);
+        // return view(
+        //     "admin.pages.setting.list",
+        //     [
+        //         'data' => $data
+        //     ]
+        // );
+        $parentBr = null;
+        if ($request->has('parent_id')) {
+            $data = $this->setting->where('parent_id', $request->input('parent_id'))->orderby('order')->orderBy("created_at", "desc")->paginate(15);
+            if ($request->input('parent_id')) {
+                $parentBr = $this->setting->find($request->input('parent_id'));
+            }
+        } else {
+            $data = $this->setting->where('parent_id', 0)->orderby('order')->orderBy("created_at", "desc")->paginate(15);
+        }
+        return view("admin.pages.setting.list",
             [
-                'data' => $data
+                'data' => $data,
+                'parentBr' => $parentBr,
             ]
         );
     }
@@ -40,8 +55,7 @@ class AdminSettingController extends Controller
         }else{
             $htmlselect = $this->setting->getHtmlOption();
         }
-        return view(
-            "admin.pages.setting.add",
+        return view("admin.pages.setting.add",
             [
                 'option' => $htmlselect,
                 'request' => $request
@@ -69,12 +83,12 @@ class AdminSettingController extends Controller
             // insert database in setting table
             $this->setting->create($dataSettingCreate);
             DB::commit();
-            return redirect()->route('admin.setting.create',['parent_id'=>$request->parentId])->with("alert", "Thêm setting thành công");
+            return redirect()->route('admin.setting.index',['parent_id'=>$request->parentId])->with("alert", "Thêm setting thành công");
         } catch (\Exception $exception) {
             //throw $th;
             DB::rollBack();
             Log::error('message' . $exception->getMessage() . 'line :' . $exception->getLine());
-            return redirect()->route('admin.setting.create',['parent_id'=>$request->parentId])->with("error", "Thêm setting không thành công");
+            return redirect()->route('admin.setting.index',['parent_id'=>$request->parentId])->with("error", "Thêm setting không thành công");
         }
     }
     public function edit($id)
@@ -107,12 +121,12 @@ class AdminSettingController extends Controller
             $this->setting->find($id)->update($dataSettingUpdate);
 
             DB::commit();
-            return redirect()->route('admin.setting.index')->with("alert", "Sửa setting thành công");
+            return redirect()->route('admin.setting.index',['parent_id'=>$request->parentId])->with("alert", "Sửa setting thành công");
         } catch (\Exception $exception) {
             //throw $th;
             DB::rollBack();
             Log::error('message' . $exception->getMessage() . 'line :' . $exception->getLine());
-            return redirect()->route('admin.setting.create')->with("error", "Sửa setting thành công");
+            return redirect()->route('admin.setting.index',['parent_id'=>$request->parentId])->with("error", "Sửa setting thành công");
         }
     }
     public function destroy($id)

@@ -17,7 +17,7 @@ class CreateSlidersTable extends Migration
             $table->bigIncrements("id");
             $table->string("name",255);
             $table->string("slug",255);
-            $table->string("description",255)->nullable();
+            $table->text("description")->nullable();
             $table->string("image_path",255)->nullable();
             $table->bigInteger("admin_id")->unsigned();
             $table->tinyInteger("active")->default(1);

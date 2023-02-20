@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Rules\ArrayValueExistDatabase;
 use App\Models\Role;
+
 class ValidateEditUser extends FormRequest
 {
     /**
@@ -29,76 +30,70 @@ class ValidateEditUser extends FormRequest
      */
     public function rules()
     {
-        $id=request()->route()->parameter('id');
-        if(\App\Models\User::find($id)->status==1){
-            $rules= [
-                "name" => "required|min:3|max:250",
-                "email" =>  [
-                    "required",
-                    Rule::unique("App\Models\User",'email')->where(function ($query) {
-                        $id=request()->route()->parameter('id');
-                        return $query->where([
-                            ['deleted_at','=', null],
-                            ['id','<>', $id],
-                        ]);
-                    })
-                ],
-                "username" =>  [
-                    "required",
-                    Rule::unique("App\Models\User",'username')->where(function ($query) {
-                        $id=request()->route()->parameter('id');
-                        return $query->where([
-                            ['deleted_at','=', null],
-                            ['id','<>', $id],
-                        ]);
-                    })
-                ],
-                "avatar_path"=>"mimes:jpeg,jpg,png,svg|nullable",
-                "password" =>"min:6",
-                "password_confirmation"=>"same:password",
+        $id = auth()->user()->id;
+        $rules = [];
+        //  if (!auth()->user()->provider) {
+        $rules = [
+            "name" => "required|min:1|max:191",
+            "email" =>  [
+                "required",
+                Rule::unique("App\Models\User", 'email')->where(function ($query) use ($id) {
+                    return $query->where([
+                        ['deleted_at', '=', null],
+                        ['id', '<>', $id],
+                    ]);
+                })
+            ],
+            "username" =>  [
+                "required",
+                Rule::unique("App\Models\User", 'username')->where(function ($query) use ($id) {
+                    return $query->where([
+                        ['deleted_at', '=', null],
+                        ['id', '<>', $id],
+                    ]);
+                })
+            ],
+            "avatar_path" => "mimes:jpeg,jpg,png,svg|nullable",
+            "password" => "min:6|nullable",
+            "password_confirmation" => "same:password",
 
-                "phone" => "required|min:10|max:11",
-                'date_birth'=>"date:'d-m-Y'",
-                "address"=>"required",
-                "hktt"=>"required",
-                "cmt"=>[
-                    "required",
-                    Rule::unique("App\Models\User",'cmt')->where(function ($query) {
-                        $id=request()->route()->parameter('id');
-                        return $query->where([
-                            ['deleted_at','=', null],
-                            ['id','<>', $id],
-                        ]);
-                    })
-                ],
-                "ctk"=>"required|min:3|max:250",
-                "stk"=>"required|min:3|max:250",
-                "bank_id"=>'required|exists:App\Models\Bank,id',
-                "bank_branch" => "required|min:3|max:250",
-                "sex" => "required",
-              //  "active" => "required",
-                "checkrobot" => "accepted"
-            ];
-        }else{
-            $rules= [
-                "avatar_path"=>"mimes:jpeg,jpg,png,svg|nullable",
-                "password" =>"nullable|min:6",
-                "password_confirmation"=>"same:password",
-                "ctk"=>"required|min:3|max:250",
-                "stk"=>"required|min:3|max:250",
-                "bank_id"=>'required|exists:App\Models\Bank,id',
-                "bank_branch" => "required|min:3|max:250",
-                "sex" => "required",
-              //  "active" => "required",
-                "checkrobot" => "accepted"
-            ];
-        }
+            "phone" =>  [
+                'required',
+                'regex:/[0-9]{10,11}/',
+                Rule::unique("App\Models\User", 'phone')->where(function ($query) use ($id) {
+                    return $query->where([
+                        ['deleted_at', '=', null],
+                        ['id', '<>', $id],
+                    ]);
+                })
+            ],
+
+            //  'date_birth' => "nullable|date:'d-m-Y'",
+
+            //  "city_id"=> ['required', 'exists:App\Models\City,id'],
+            //  "district_id"=>'required|exists:App\Models\District,id',
+            //  "commune_id"=>'required|exists:App\Models\Commune,id',
+
+            //  "address_detail" => "nullable",
+
+            // "sex" => "required",
+            //  "active" => "required",
+        ];
+        //  }
+        // $rules['date_birth'] = ['required', 'date','before:today'];
+        // $rules['info_more'] = ['required', 'string', 'max:191'];
+        // $rules['you_become'] = ['required', 'string', 'max:191'];
+        // if(auth()->user()->type==1){
+        //     $rules['city_id']=['required', 'exists:App\Models\City,id'];
+        //     $rules['district_id']='required|exists:App\Models\District,id';
+        // }
+
         return $rules;
     }
     public function messages()
     {
         return [
-            "avatar_path.mimes"=>"Ảnh đại diện không đúng định dạng (jpeg,jpg,png,svg)",
+            "avatar_path.mimes" => "Ảnh đại diện không đúng định dạng (jpeg,jpg,png,svg)",
             "name.required" => "Họ tên là trường bắt buộc",
             "name.min" => "Họ tên phải có độ dài 3",
             "name.max" => "Họ tên phải có độ dài 250",
@@ -116,7 +111,7 @@ class ValidateEditUser extends FormRequest
             "stk.min" => "STK phải có độ dài 3",
             "stk.max" => "STK phải có độ dài 250",
 
-            "password.min"=>"password phải lớn hơn 6 ký tự",
+            "password.min" => "password phải lớn hơn 6 ký tự",
             "password_confirmation.same" => "Password nhập không giống nhau",
             "phone.required" => "Số điện thoại là trường bắt buộc",
             "phone.min" => "Số điện thoại  không đúng định dạng",
@@ -126,9 +121,9 @@ class ValidateEditUser extends FormRequest
             "address.required" => "Địa chỉ là trường bắt buộc",
 
 
-            "bank_id.exists"=>"Ngân hàng là không hợp lệ",
-            "bank_id.required"=>"Ngân hàng là trường bắt buộc",
-            "bank_branch.required"=>"Chi nhánh ngân hàng là trường bắt buộc",
+            "bank_id.exists" => "Ngân hàng là không hợp lệ",
+            "bank_id.required" => "Ngân hàng là trường bắt buộc",
+            "bank_branch.required" => "Chi nhánh ngân hàng là trường bắt buộc",
             "bank_branch.min" => "CNNH phải có độ dài 3",
             "bank_branch.max" => "CNNH phải có độ dài 250",
 

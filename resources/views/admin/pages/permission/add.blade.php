@@ -32,13 +32,13 @@
                             </div>
                             <div class="card-body table-responsive p-3">
                                 <div class="form-group">
-                                    <label for="">Tên danh mục</label>
+                                    <label for="">Tên quyền</label>
                                     <input
                                         type="text"
                                         class="form-control"
                                         id=""
                                         value="{{ old('name') }}"  name="name"
-                                        placeholder="Nhập tên permission"
+                                        placeholder="Nhập tên quyền"
                                     >
                                     @error('name')
                                         <div class="alert alert-danger">{{ $message }}</div>
@@ -85,14 +85,14 @@
 
                                   <div class="form-group form-check">
                                   <input type="checkbox" class="form-check-input" name="checkrobot" id="checkrobot" required>
-                                  <label class="form-check-label" for="checkrobot">Check me out</label>
+                                  <label class="form-check-label" for="checkrobot">Tôi đồng ý</label>
                                   </div>
                                   @error('checkrobot')
                                   <div class="alert alert-danger">{{ $message }}</div>
                                   @enderror
                                   <div class="form-group">
-                                    <button type="reset" class="btn btn-danger">Reset</button>
                                     <button type="submit" class="btn btn-primary">Chấp nhận</button>
+                                    <button type="reset" class="btn btn-danger">Làm lại</button>
                                   </div>
                             </div>
                          </div>

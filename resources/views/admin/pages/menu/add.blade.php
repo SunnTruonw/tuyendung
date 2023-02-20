@@ -39,7 +39,7 @@
                            @enderror
                         </div>
                         <div class="form-group">
-                           <label for="">slug</label>
+                           <label for="">Slug</label>
                            <input
                               type="text"
                               class="form-control"
@@ -70,9 +70,9 @@
                               class="form-check-input"
                               value="1"
                               name="active"
-                              @if(old('active')==="1"||old('active')===null) {{'checked'}}  @endif
+                              @if(old('active')==='1'||old('active')===null) {{'checked'}}  @endif
                               >
-                              Active
+                              Ẩn
                               </label>
                            </div>
                            <div class="form-check-inline">
@@ -84,7 +84,7 @@
                               @if(old('active')==="0"){{'checked'}}  @endif
                               name="active"
                               >
-                              Disable
+                              Hiện
                               </label>
                            </div>
                         </div>
@@ -93,13 +93,13 @@
                         @enderror
                         <div class="form-group form-check">
                            <input type="checkbox" class="form-check-input" name="checkrobot" id="checkrobot" required>
-                           <label class="form-check-label" for="checkrobot">Check me out</label>
+                           <label class="form-check-label" for="checkrobot">Tôi đồng ý</label>
                         </div>
                         @error('checkrobot')
                         <div class="alert alert-danger">{{ $message }}</div>
                         @enderror
                         <div class="form-group">
-                           <button type="reset" class="btn btn-danger">Reset</button>
+                           <button type="reset" class="btn btn-danger">Làm mới</button>
                            <button type="submit" class="btn btn-primary">Chấp nhận</button>
                         </div>
                      </div>

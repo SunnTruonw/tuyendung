@@ -33,7 +33,6 @@ class ValidateAddSlider extends FormRequest
             //"description"=>"required",
             "image_path" => "mimes:jpeg,jpg,png,svg|nullable",
             "active" => "required",
-            "checkrobot" => "accepted"
         ];
     }
     public function messages()

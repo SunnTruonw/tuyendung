@@ -5,6 +5,12 @@
 ul{
     padding-left: 20px;
 }
+	.info-box .info-box-number {
+    display: block;
+    margin-top: .25rem;
+		color: #f00;
+    font-weight: 700;
+}
 </style>
 @endsection
 @section('content')
@@ -20,11 +26,10 @@ ul{
                                 <div class="row">
                                     @foreach ($dataTransactionGroupByStatus as $item)
 
-                                    <div class="col-md-3 col-sm-6 col-12">
+                                    <div class="col-md-4 col-sm-6 col-12">
                                         <div class="info-box">
                                         <span class="info-box-icon bg-info"><i class="fas fa-calculator"></i></span>
                                         <div class="info-box-content">
-
                                             <span class="info-box-text">Số giao dịch {{ $item['name'] }} </span>
                                             <span class="info-box-number"><strong>{{ number_format($item['total']??0) }}</strong> / tổng số {{ $totalTransaction }}</span>
                                         </div>
@@ -76,19 +81,19 @@ ul{
                                             </div>
                                         </div>
                                         <div class="col-md-3 text-right">
-                                            <button type="submit" class="btn btn-success">Search</button>
-                                            <a href="{{ route('admin.transaction.index') }}" class="btn btn-danger">Reset</a>
+                                            <button type="submit" class="btn btn-success">Tìm kiếm</button>
+                                            <a href="{{ route('admin.transaction.index') }}" class="btn btn-danger">Làm lại</a>
                                         </div>
 
                                     </div>
                                 </form>
                               </div>
                            </div>
-                           <div class="card-tools text-right pl-3 pr-3 pt-2 pb-2">
+                           {{-- <div class="card-tools text-right pl-3 pr-3 pt-2 pb-2">
                             <div class="count">
                                 Tổng số bản ghi <strong>{{  $data->count() }}</strong> / {{ $totalTransaction }}
                              </div>
-                          </div>
+                          </div> --}}
                            <!-- /.card-header -->
                            <div class="card-body table-responsive p-0">
                               <table class="table table-head-fixed">
@@ -97,10 +102,10 @@ ul{
                                        <th>ID</th>
                                        <th class="text-nowrap">Thông tin</th>
                                        <th class="text-nowrap">Tổng tiền</th>
-                                       <th class="text-nowrap">Acount</th>
+                                       <th class="text-nowrap">Tài khoản</th>
                                        <th class="text-nowrap">Trạng thái</th>
                                        <th>Thời gian</th>
-                                       <th>Action</th>
+                                       <th>Trang thái</th>
                                     </tr>
                                  </thead>
                                  <tbody>
@@ -109,41 +114,48 @@ ul{
                                          <td>{{ $transaction->id }}</td>
                                          <td>
                                              <ul>
+                                                <li>
+                                                    <strong>MGD:</strong>  {{ $transaction->code }}
+                                                  </li>
                                                  <li>
                                                    <strong>Name:</strong>  {{ $transaction->name }}
                                                  </li>
-                                                 <li>
+                                                 {{-- <li>
                                                   <strong>Phone:</strong>   {{ $transaction->phone }}
                                                  </li>
                                                  <li>
                                                   <strong>Email:</strong>   {{ $transaction->email }}
-                                                 </li>
+                                                 </li> --}}
                                              </ul>
                                          </td>
                                          <td class="text-nowrap">
                                              {{-- <span class="tag tag-success"></span> --}}
                                              <ul>
                                                 <li>
-                                                  <strong>Tổng giá trị đơn hàng:</strong>  {{ number_format($transaction->total) }}
+                                                   {{ number_format($transaction->total) }} đ
                                                 </li>
-                                                <li>
-                                                 <strong>Tri trả bằng tiền:</strong>   {{ number_format($transaction->money)}} đ
-                                                </li>
-                                                <li>
-                                                    <strong>Tri trả bằng điểm:</strong>   {{ number_format($transaction->point)}} điểm
-                                                </li>
+                                                {{-- <li>
+                                                 <strong>Trả bằng tiền:</strong>   {{ number_format($transaction->money)}} đ
+                                                </li> --}}
+                                                {{-- <li>
+                                                    <strong>Sử dụng điểm:</strong>   {{ number_format($transaction->point)}} điểm
+                                                </li> --}}
                                             </ul>
                                             </td>
                                          <td class="text-nowrap">{{ $transaction->user_id?'Thành viên':'Khách vãng lai' }}</td>
-                                         <td class="text-nowrap status" data-url="{{ route('admin.transaction.loadNextStepStatus',['id'=>$transaction->id]) }}">
-                                            @include('admin.components.status',[
-                                                'dataStatus'=>$transaction,
-                                                'listStatus'=>$listStatus,
-                                            ])
+                                         <td class="text-nowrap">
+                                            <a class="show-status"
+                                              data-url="{{ route('admin.editStatus', ['id' => $transaction->id]) }}"
+                                              data-id="{{ $transaction->id }}">
+                                              @include('admin.components.status',[
+                                              'dataStatus'=>$transaction,
+                                              'listStatus'=>$listStatus,
+                                              ])
+                                            </a>
                                          </td>
                                          <td class="text-nowrap">{{ $transaction->created_at }}</td>
                                          <td>
-                                             <a  class="btn btn-sm btn-info" id="btn-load-transaction-detail" data-url="{{route('admin.transaction.detail',['id'=>$transaction->id])}}" ><i class="fas fa-eye"></i></a>
+                                             <a  class="btn btn-sm btn-info btn-load-transaction-detail"  data-url="{{route('admin.transaction.detail',['id'=>$transaction->id])}}" ><i class="fas fa-eye"></i></a>
                                              <a href="" data-url="{{route('admin.transaction.destroy',['id'=>$transaction->id])}}"  class="btn btn-sm btn-info btn-danger lb_delete"><i class="far fa-trash-alt"></i></a>
                                          </td>
                                       </tr>
@@ -188,6 +200,25 @@ ul{
       </div>
     </div>
   </div>
+  <div class="modal fade" id="statusTransaction" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Trạng thái đơn hàng</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <div id="loadListErrorStatus"></div>
+              <div id="loadTransactionStatus">
+
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
 @endsection
 @section('js')
 

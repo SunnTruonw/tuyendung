@@ -24,19 +24,6 @@
 
                 <div class="d-flex justify-content-between ">
                     <a href="{{route('admin.post.create')}}" class="btn  btn-info btn-md mb-2">+ Thêm mới</a>
-                    <div class="group-button-right d-flex">
-                        <form action="{{route('admin.post.import.excel.database')}}" class="form-inline" method="post" enctype="multipart/form-data">
-                            @csrf
-                            <div class="form-group" style="max-width: 250px">
-                                <input type="file" class="form-control-file" name="fileExcel" accept=".xlsx" required>
-                              </div>
-                            <input type="submit" value="Import Execel" class=" btn btn-info ml-1">
-                        </form>
-                        <form class="form-inline ml-3" action="{{route('admin.post.export.excel.database')}}" method="post" enctype="multipart/form-data">
-                            @csrf
-                            <input type="submit" value="Export Execel" class=" btn btn-danger">
-                        </form>
-                    </div>
                 </div>
 
                 <div class="card card-outline card-primary">
@@ -78,10 +65,10 @@
                                     </div>
 
                                     <div class="col-md-1 mb-0">
-                                        <button type="submit" class="btn btn-success w-100">Search</button>
+                                        <button type="submit" class="btn btn-success w-100">Tìm kiếm</button>
                                     </div>
                                     <div class="col-md-1 mb-0">
-                                        <a  class="btn btn-danger w-100" href="{{ route('admin.post.index') }}">Reset</a>
+                                        <a  class="btn btn-danger w-100" href="{{ route('admin.post.index') }}">Làm lại</a>
                                     </div>
                                 </div>
                             </form>
@@ -96,7 +83,7 @@
                                         <th>ID</th>
                                         <th>Name</th>
                                         <th class="white-space-nowrap">Giới thiệu</th>
-                                        <th class="white-space-nowrap">Số lượt xem</th>
+                                        {{--<th class="white-space-nowrap">Số lượt xem</th>--}}
                                         <th class="white-space-nowrap">Avatar</th>
                                         <th class="white-space-nowrap">Active</th>
                                         <th class="white-space-nowrap">Nổi bật</th>
@@ -112,7 +99,7 @@
                                     <td>{{$postItem->id}}</td>
                                     <td>{{$postItem->name}}</td>
                                     <td>{{$postItem->description}}</td>
-                                    <td>{{$postItem->view}}</td>
+                                    {{--<td>{{$postItem->view}}</td>--}}
                                     <td><img src="{{asset($postItem->avatar_path)}}" alt="{{$postItem->name}}" style="width:80px;"></td>
                                     <td class="wrap-load-active" data-url="{{ route('admin.post.load.active',['id'=>$postItem->id]) }}">
                                        @include('admin.components.load-change-active',['data'=>$postItem,'type'=>'bài viết'])

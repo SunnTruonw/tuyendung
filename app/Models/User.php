@@ -7,7 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Point;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable;
     // status [1=>'khởi tạo chưa điền hoàn thiện thông tin',2=>'đã điền hoàn thiện thông tin']
@@ -17,10 +17,41 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $fillable = [
-        'name', 'email', 'username', 'parent_id', 'parent_id2', 'order', 'password', 'active','phone','date_birth','address','hktt','cmt','stk','ctk','bank_id','bank_branch','sex','status','avatar_path',
-    ];
-
+    // protected $fillable = [
+    //     'name',
+    //     'email',
+    //     'verification_code',
+    //     'is_verified',
+    //     'username',
+    //     'parent_id',
+    //     'parent_id2',
+    //     'order',
+    //     'password',
+    //     'active',
+    //     'phone',
+    //     'date_birth',
+    //     'address',
+    //     'hktt',
+    //     'cmt',
+    //     'stk',
+    //     'ctk',
+    //     'bank_id',
+    //     'bank_branch',
+    //     'sex',
+    //     'status',
+    //     'avatar_path',
+    //     'city_id',
+    //     'district_id',
+    //     'commune_id',
+    //     'address_detail',
+    //     'admin_id',
+    //     'tai_chinh',
+    //     'type',
+    //     'code',
+    //     'provider',
+    //     'provider_id'
+    // ];
+    protected $guarded = [];
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -41,10 +72,16 @@ class User extends Authenticatable
 
     private $data = [];
 
+    /**
+     * status_store =0 chưa tạo gian hàng
+     * status_store =1 đã tạo gian hàng
+     */
+
     // get role by relationship nhieu-nhieu by table trung gian role_users
     // table trung gian role_users chứa column role_id và user_id
     public function getRoles()
     {
+
         return $this
             ->belongsToMany(Role::class, RoleUser::class, 'user_id', 'role_id')
             ->withTimestamps();
@@ -76,11 +113,33 @@ class User extends Authenticatable
     {
         return $this->hasMany(User::class, 'parent_id', 'id');
     }
+    // lấy review
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'user_id', 'id');
+    }
+    // lấy user con 20 tầng
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'user_id', 'id');
+    }
     // lấy user cha 20 tầng
     public function parent()
     {
         return $this->belongsTo(User::class, 'parent_id', 'id');
     }
+
+    // lấy giao dich mua
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'user_id', 'id');
+    }
+    // lấy giao dich ban
+    public function transactionsSell()
+    {
+        return $this->hasMany(Transaction::class, 'origin_id', 'id');
+    }
+
     // lấy user con 7 tầng
     public function childs2()
     {
@@ -91,7 +150,24 @@ class User extends Authenticatable
     {
         return $this->belongsTo(User::class, 'parent_id2', 'id');
     }
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class, 'admin_id', 'id');
+    }
 
+    public function city()
+    {
+        return $this->belongsTo(City::class, 'city_id', 'id');
+    }
+
+    public function district()
+    {
+        return  $this->belongsTo(District::class, 'district_id', 'id');
+    }
+    public function commune()
+    {
+        return $this->belongsTo(Commune::class, 'commune_id', 'id');
+    }
 
     // lấy list user theo cấp
     public function listUser20($user)
@@ -145,13 +221,11 @@ class User extends Authenticatable
         $numberChild = 3;
         // công thức tính tổng số phần tử ở vòng thứ n là x*0 + (x^(n+1)-x)/(x-1);
         // công thức tính số phần tử của vòng thứ n = x^n;
-        $numberUserDatabase = $this->where([
-            'active' => 1,
-        ])->get()->count();
+        $numberUserDatabase = $this->whereIn('active', [1, 2])->get()->count();
         if ($numberUserDatabase > 0) {
 
             $numberUser = $numberUserDatabase + 1;
-           // dd(  $numberUserDatabase );
+            // dd(  $numberUserDatabase );
             if ($numberUser <= 4) {
                 $stt = 1;
             } else {
@@ -178,185 +252,41 @@ class User extends Authenticatable
                 $numberUserMaxNNext = pow($numberChild, $n + 1);
                 $start = $totalUserNPrev + 1;
                 $end = $totalUser;
-                $ck= $end-$start+1;
-              //  dd($start);
-                if($numberUserNNext%$ck==0){
-                    $stt=$end;
-                }else{
-                    $m=$numberUserNNext;
-                    while($m>=$ck){
-                        $m=$m%$ck;
-                    }
-                  //  dd($m);
-                    $stt=$start+$m-1;
-                }
-
-              // dd($stt);
-             // dd($ck, $start, $end);
-            }
-
-            $userParent = $this->where([
-                'active' => 1
-            ])->orderBy('order', 'asc')->offset($stt - 1)->limit(1)->first();
-            $parent_id2=$userParent->id;
-          //  dd($stt);
-        } else {
-            $parent_id2 = 0;
-        }
-        return $parent_id2;
-    }
-
-    public function test($start, $end, $chuki, $nNext)
-    {
-        $numberChild = 3;
-        // công thức tính tổng số phần tử ở vòng thứ n là x*0 + (x^(n+1)-x)/(x-1);
-        // công thức tính số phần tử của vòng thứ n = x^n;
-        $numberUserDatabase = $this->where([
-            'active' => 1,
-        ])->get()->count();
-        if ($numberUserDatabase > 0) {
-            $numberUser = $numberUserDatabase + 1;
-            // dd($numberUser);
-            $totalCicle = log((($numberUser - 1) * ($numberChild - 1) + $numberChild), $numberChild) - 1;
-            // vòng hoàn thiện cuối cùng
-            //  dd($totalCicle-floor($totalCicle)==0);
-            if ($totalCicle - floor($totalCicle) == 0) {
-                $n = $totalCicle - 1;
-            } else {
-                $n = floor($totalCicle);
-            }
-
-            // dd($n);
-            // tổng số user đến vòng thứ n là
-            $numberUserN = 1 + (pow($numberChild, $n + 1) - $numberChild) / ($numberChild - 1);
-            // dd( $numberUserN);
-            // dd($numberUserN);
-            // số user đã có ở vòng tiếp theo
-            $numberUserNNext = $numberUser - $numberUserN;
-            // dd($numberUserNNext);
-            // số user tối đa ở vòng tiếp theo là
-            $numberUserMaxNNext = pow($numberChild, $n + 1);
-            //  dd( $numberUserN - pow($numberChild, $n) );
-            //  dd($numberUserMaxNNext);
-            // số lượt rải chu kì ở vòng tiếp theo
-            $nchuki = $numberUserMaxNNext / $numberChild;
-            $nU = $numberUserNNext;
-            $start = 1;
-            $end =  $nchuki;
-            $ck = $nchuki;
-            //  dd('chu ki', $nchuki ,'nU', $nU ,'start', $start ,'end', $end,'ck',  $ck ,);
-            //  dd($numberUserMaxNNext);
-            //   dd($nU);
-            if ($nU % $nchuki == 0) {
-                $nUserParent = $nchuki;
-                //  dd($nUserParent);
-                $stt = $numberUserN - pow($numberChild, $n)  + $nUserParent;
-            } else {
-                $m = $nU;
-                $st = $start;
-                $en = $end;
-
-                if ($m < 3) {
-                    switch ($m) {
-                        case 1:
-                            # code...
-                            $st = $start;
-                            $en = $ck / 3 + $start - 1;
-                            break;
-                        case 2:
-                            $st = $start + $ck / 3;
-                            $en = 2 * $ck / 3 + $start - 1;
-                            # code...
-                            // dd($en);
-                            break;
-                        case 0:
-                            $st = 2 * $ck / 3 + $start;
-                            $en = $ck + $start - 1;
-                            # code...
-                            break;
-
-                        default:
-                            # code...
-                            break;
-                    }
-                    $start = $st;
-                    $end = $en;
-                    $ck = $ck / 3;
-                    $nUserParent = $start;
-
-                    //  dd($start,$end);
+                $ck = $end - $start + 1;
+                //  dd($start);
+                if ($numberUserNNext % $ck == 0) {
+                    $stt = $end;
                 } else {
-                    while ($nU >= 3) {
-                        if ($nU % $ck == 0) {
-                            $nUserParent = $ck;
-                        }
-                        // dd($nU);
-                        $m = $nU;
-                        while ($m  >= 3) {
-                            $m = $m % 3;
-                        }
-                        //  dd($m);
-                        switch ($m) {
-                            case 1:
-                                # code...
-                                $st = $start;
-                                $en = $ck / 3 + $start - 1;
-                                break;
-                            case 2:
-                                $st = $start + $ck / 3;
-                                $en = 2 * $ck / 3 + $start - 1;
-                                # code...
-                                break;
-                            case 0:
-                                $st = 2 * $ck / 3 + $start;
-                                $en = $ck + $start - 1;
-                                # code...
-                                break;
-
-                            default:
-                                # code...
-                                break;
-                        }
-                        $start = $st;
-                        $end = $en;
-                        $nU = floor($nU / 3);
-                        // dd($nU);
-                        $ck = $ck / 3;
+                    $m = $numberUserNNext;
+                    while ($m >= $ck) {
+                        $m = $m % $ck;
                     }
-                    dd($m);
-                    if ($m != 0) {
-                        $nUserParent = $start + $nU - 1;
-                    } else {
-                        $nUserParent = $start + $nU - 1;
-                    }
+                    //  dd($m);
+                    $stt = $start + $m - 1;
                 }
 
-                //  dd('chu ki', $nchuki ,'nU', $nU ,'start', $start ,'end', $end,'ck',  $ck ,);
-                //  dd($m);
-
-
-
-                // vị trị của thằng cha là
-                $stt = $numberUserN - pow($numberChild, $n) + $nUserParent;
-                //  dd($stt);
+                // dd($stt);
+                // dd($ck, $start, $end);
             }
 
-
-            // dd('chu ki', $nchuki, 'nU', $nU, 'start', $start, 'end', $end, 'ck',  $ck, 'stt', $stt, 'nUserParent', $nUserParent);
-            // dd($nchuki);
-            //  dd($nUserParent);
-            // dd($stt);
-            $userParent = $this->where([
-                'active' => 1
-            ])->orderBy('order', 'asc')->offset($stt - 1)->limit(1)->first();
-            //   dd($nchuki);
-            //  dd($n);
-            //   dd($userParent);
+            $userParent = $this->whereIn('active', [1, 2])->orderBy('order', 'asc')->offset($stt - 1)->limit(1)->first();
             $parent_id2 = $userParent->id;
+            //  dd($stt);
         } else {
             $parent_id2 = 0;
         }
-        dd($parent_id2);
         return $parent_id2;
     }
+
+
+    // kiểm tra đã tạo shop chưa
+    public function isCreateShop()
+    {
+        return $this->status_store ? true : false;
+    }
+     // kiểm tra tài khoản được tạo từ web hay login face...
+     public function isCreateToWeb()
+     {
+         return $this->provider ? false : true;
+     }
 }

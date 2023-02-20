@@ -23,6 +23,9 @@ class PermissionGateAndPolicyAccess
         $this->defineGateRole();
         $this->defineGatePermission();
         $this->defineGatePay();
+        $this->defineGateStore();
+        $this->defineGateReview();
+        $this->defineGateTransaction();
     }
     public function defineGateCategoryProduct()
     {
@@ -65,6 +68,10 @@ class PermissionGateAndPolicyAccess
         Gate::define('product-add', 'App\Policies\Admins\AdminProductPolicy@add');
         Gate::define('product-edit', 'App\Policies\Admins\AdminProductPolicy@edit');
         Gate::define('product-delete', 'App\Policies\Admins\AdminProductPolicy@delete');
+
+        Gate::define('comment-product-list', 'App\Policies\Admins\AdminProductPolicy@listComment');
+        Gate::define('comment-product-delete', 'App\Policies\Admins\AdminProductPolicy@deleteComment');
+        Gate::define('comment-product-active', 'App\Policies\Admins\AdminProductPolicy@activeComment');
     }
     public function defineGatePost()
     {
@@ -130,6 +137,7 @@ class PermissionGateAndPolicyAccess
         Gate::define('pay-edit', 'App\Policies\Admins\AdminPayPolicy@edit');
         Gate::define('pay-update-draw-point', 'App\Policies\Admins\AdminPayPolicy@payUpdateDrawPoint');
         Gate::define('pay-delete', 'App\Policies\Admins\AdminPayPolicy@delete');
+        Gate::define('pay-export-excel', 'App\Policies\Admins\AdminPayPolicy@exportExcel');
     }
 
     public function defineGateBank()
@@ -140,5 +148,34 @@ class PermissionGateAndPolicyAccess
         Gate::define('bank-add', 'App\Policies\Admins\AdminBankPolicy@add');
         Gate::define('bank-edit', 'App\Policies\Admins\AdminBankPolicy@edit');
         Gate::define('bank-delete', 'App\Policies\Admins\AdminBankPolicy@delete');
+    }
+    public function defineGateStore()
+    {
+        // module menu
+
+        Gate::define('store-list', 'App\Policies\Admins\AdminStorePolicy@list');
+        Gate::define('store-input', 'App\Policies\Admins\AdminStorePolicy@input');
+        Gate::define('store-output', 'App\Policies\Admins\AdminStorePolicy@output');
+        Gate::define('store-delete', 'App\Policies\Admins\AdminStorePolicy@delete');
+    }
+    public function defineGateReview()
+    {
+        // module menu
+
+        Gate::define('review-list', 'App\Policies\Admins\AdminReviewPolicy@list');
+        Gate::define('review-duyet', 'App\Policies\Admins\AdminReviewPolicy@duyet');
+        Gate::define('review-delete', 'App\Policies\Admins\AdminReviewPolicy@delete');
+        Gate::define('review-status', 'App\Policies\Admins\AdminReviewPolicy@status');
+
+        Gate::define('comment-review-list', 'App\Policies\Admins\AdminReviewPolicy@listComment');
+        Gate::define('comment-review-delete', 'App\Policies\Admins\AdminReviewPolicy@deleteComment');
+        Gate::define('comment-review-active', 'App\Policies\Admins\AdminReviewPolicy@activeComment');
+    }
+
+    public function defineGateTransaction()
+    {
+        Gate::define('transaction-list', 'App\Policies\Admins\AdminTransactionPolicy@list');
+        Gate::define('transaction-status', 'App\Policies\Admins\AdminTransactionPolicy@status');
+        Gate::define('transaction-delete', 'App\Policies\Admins\AdminTransactionPolicy@delete');
     }
 }

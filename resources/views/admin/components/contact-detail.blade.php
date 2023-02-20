@@ -53,7 +53,7 @@
                   </ul>
               </td>
 
-               <td class="text-nowrap"> {{ $contact->content }} </td>
+               <td class=""> {{ $contact->content }} </td>
                <td class="text-nowrap"> {{ date_format($contact->created_at,"d/m/Y") }} </td>
 
             </tr>

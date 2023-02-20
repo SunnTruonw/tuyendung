@@ -42,7 +42,7 @@ class AdminPostController extends Controller
         $data = $this->post;
         if ($request->input('category')) {
             $categoryPostId = $request->input('category');
-            $idCategorySearch = $this->categoryPost->getALlCategoryPostChildren($categoryPostId);
+            $idCategorySearch = $this->categoryPost->getALlCategoryChildren($categoryPostId);
             $idCategorySearch[] = (int)($categoryPostId);
             $data = $data->whereIn('category_id', $idCategorySearch);
             $htmlselect = $this->categoryPost->getHtmlOption($categoryPostId);
@@ -103,8 +103,7 @@ class AdminPostController extends Controller
         }
         $data = $data->paginate(15);
 
-        return view(
-            "admin.pages.post.list",
+        return view("admin.pages.post.list",
             [
                 'data' => $data,
                 'option' => $htmlselect,
@@ -119,8 +118,7 @@ class AdminPostController extends Controller
     public function create(Request $request = null)
     {
         $htmlselect = $this->categoryPost->getHtmlOption();
-        return view(
-            "admin.pages.post.add",
+        return view("admin.pages.post.add",
             [
                 'option' => $htmlselect,
                 'request' => $request
@@ -139,6 +137,7 @@ class AdminPostController extends Controller
                 "description" => $request->input('description'),
                 "description_seo" => $request->input('description_seo'),
                 "title_seo" => $request->input('title_seo'),
+                "keyword_seo" => $request->input('keyword_seo'),
                 "content" => $request->input('content'),
                 "active" => $request->input('active'),
                 "category_id" => $request->input('category_id'),
@@ -160,12 +159,12 @@ class AdminPostController extends Controller
                 $post->tags()->attach($tag_ids);
             }
             DB::commit();
-            return redirect()->route('admin.post.create')->with("alert", "Thêm bài viết thành công");
+            return redirect()->route('admin.post.index')->with("alert", "Thêm bài viết thành công");
         } catch (\Exception $exception) {
             //throw $th;
             DB::rollBack();
             Log::error('message' . $exception->getMessage() . 'line :' . $exception->getLine());
-            return redirect()->route('admin.post.create')->with("error", "Thêm bài viết không thành công");
+            return redirect()->route('admin.post.index')->with("error", "Thêm bài viết không thành công");
         }
     }
     public function edit($id)
@@ -190,6 +189,7 @@ class AdminPostController extends Controller
                 "description" => $request->input('description'),
                 "description_seo" => $request->input('description_seo'),
                 "title_seo" => $request->input('title_seo'),
+                "keyword_seo" => $request->input('keyword_seo'),
                 "content" => $request->input('content'),
                 "active" => $request->input('active'),
                 "category_id" => $request->input('category_id'),

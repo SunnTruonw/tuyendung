@@ -55,7 +55,7 @@ class ValidateEditSetting extends FormRequest
             ],
             //"description"=>"required",
             "active" => "required",
-            "checkrobot" => "accepted"
+          //  "checkrobot" => "accepted"
         ];
     }
     public function messages()

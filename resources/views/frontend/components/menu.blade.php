@@ -7,7 +7,7 @@
 @endphp
 
 
-  <ul class="nav-main">
+
     @foreach ($data as $value)
 
         <li class="nav-item">
@@ -29,7 +29,7 @@
             @endisset
         </li>
     @endforeach
-</ul>
+
 
 
 

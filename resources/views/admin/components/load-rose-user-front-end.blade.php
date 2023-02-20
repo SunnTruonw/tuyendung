@@ -12,9 +12,10 @@
               </thead>
               <tbody>
 
-                  @isset($rose)
-                      @foreach ($rose as $item)
-                         <tr>
+                @isset($rose)
+                    @if ($rose->count()>0)
+                        @foreach ($rose as $item)
+                        <tr>
                             <td>{{ $item->point }}</td>
                             <td>
                                 @if ($item->userorigin_id)
@@ -27,7 +28,10 @@
                             <td>{{ $typePoint[$item->type]['name'] }}</td>
                         </tr>
                         @endforeach
-                    @endisset
+                    @else
+                    <tr class="text-center"><td class="p-3" colspan="4">Chưa có hoa hồng</td></tr>
+                    @endif
+                @endisset
 
               </tbody>
         </table>

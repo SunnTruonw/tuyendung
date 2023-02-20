@@ -14,7 +14,7 @@
 
 @section('content')
 <div class="content-wrapper">
-   @include('admin.partials.content-header',['name'=>"Amin User","key"=>"Sửa admin user"])
+   @include('admin.partials.content-header',['name'=>"Amin User","key"=>"Sửa tài khoản"])
    <!-- Main content -->
    <div class="content">
       <div class="container-fluid">
@@ -35,17 +35,17 @@
                      <div class="col-md-8">
                         <div class="card card-outline card-primary">
                             <div class="card-header">
-                                <h3 class="card-title">Thông tin slider</h3>
+                                <h3 class="card-title">Thông tin tài khoản</h3>
                             </div>
                             <div class="card-body table-responsive p-3">
                                 <div class="form-group">
-                                <label for="">Tên admin user</label>
+                                <label for="">Tên tài khoản</label>
                                 <input
                                     type="text"
                                     class="form-control"
                                     id=""
                                     value="{{ $data->name }}"  name="name"
-                                    placeholder="Nhập admin user"
+                                    placeholder="Nhập tài khoản"
                                     >
                                 @error('name')
                                 <div class="alert alert-danger">{{ $message }}</div>
@@ -65,26 +65,26 @@
                                 @enderror
                                 </div>
                                 <div class="form-group">
-                                <label for="">Password</label>
+                                <label for="">Mật khẩu</label>
                                 <input
                                     type="password"
                                     class="form-control"
                                     id=""
                                     value="{{ old('password') }}"  name="password"
-                                    placeholder="Password"
+                                    placeholder="Nhập mật khẩu"
                                     >
                                 @error('password')
                                 <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                                 </div>
                                 <div class="form-group">
-                                <label for="">password confirmation</label>
+                                <label for="">Nhập lại mật khẩu</label>
                                 <input
                                     type="password"
                                     class="form-control"
                                     id=""
                                     value="{{ old('password_confirmation') }}"  name="password_confirmation"
-                                    placeholder="password_confirmation"
+                                    placeholder="Nhập lại mật khẩu"
                                     >
                                 @error('password_confirmation')
                                 <div class="alert alert-danger">{{ $message }}</div>
@@ -110,12 +110,12 @@
                                 <div class="form-group">
                                 <div class="form-check-inline">
                                     <label class="form-check-label">
-                                    <input type="radio" class="form-check-input" value="1" name="active" @if( $data->active=="1"||old('active')=="1") {{'checked'}}  @endif>Active
+                                    <input type="radio" class="form-check-input" value="1" name="active" @if( $data->active=="1"||old('active')=="1") {{'checked'}}  @endif>Hiện
                                     </label>
                                 </div>
                                 <div class="form-check-inline">
                                     <label class="form-check-label">
-                                    <input type="radio" class="form-check-input" value="0" @if( $data->active=="0"||old('active')=="0"){{'checked'}}  @endif name="active">Disable
+                                    <input type="radio" class="form-check-input" value="0" @if( $data->active=="0"||old('active')=="0"){{'checked'}}  @endif name="active">Ẩn
                                     </label>
                                 </div>
                                 </div>
@@ -124,14 +124,14 @@
                                 @enderror
                                 <div class="form-group form-check">
                                 <input type="checkbox" class="form-check-input" name="checkrobot" id="checkrobot">
-                                <label class="form-check-label" for="checkrobot" required>Check me out</label>
+                                <label class="form-check-label" for="checkrobot" required>Tôi đồng ý</label>
                                 </div>
                                 @error('checkrobot')
                                 <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                                 <div class="form-group">
-                                <button type="reset" class="btn btn-danger">Reset</button>
                                 <button type="submit" class="btn btn-primary">Chấp nhận</button>
+                                <button type="reset" class="btn btn-danger">Làm lại</button>
                                 </div>
                             </div>
                         </div>
@@ -153,7 +153,7 @@
 <script>
    $(function(){
      $(".select-2-init").select2({
-       placeholder: "Chọn role",
+       placeholder: "Chọn vai trò",
        allowClear: true
      })
    })

@@ -9,4 +9,17 @@ class ProductComment extends Model
     //
     protected $table="product_comments";
     protected $guarded = [];
+
+    public function childs()
+    {
+        return $this->hasMany(ProductComment::class, 'parent_id', 'id');
+    }
+    public function review()
+    {
+        return $this->belongsTo(Product::class, 'product_id', 'id');
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 }

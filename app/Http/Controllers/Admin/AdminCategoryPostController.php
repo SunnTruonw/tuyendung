@@ -27,23 +27,28 @@ class AdminCategoryPostController extends Controller
         $this->categoryPost = $categoryPost;
     }
     //
-    public function index()
+
+    public function index(Request $request)
     {
-
-        $data = $this->categoryPost->setAppends(['breadcrumb'])->where('parent_id',0)->orderBy("created_at", "desc")->paginate(15);
-        // $allData = $data->map(function ($data){
-        //     $listIdParent=$this->categoryPost->getALlCategoryParent($data->id);
-        //     $data->breadcrumbs= $this->categoryPost->select('id','name','slug')->find($listIdParent)->toArray();
-        //     return $data;
-        // });
-
-        return view(
-            "admin.pages.categorypost.list",
+        $parentBr=null;
+        if ($request->has('parent_id')) {
+            $data = $this->categoryPost->where('parent_id', $request->input('parent_id'))->orderby('order')->orderBy("created_at", "desc")->paginate(15);
+            if ($request->input('parent_id')) {
+                $parentBr = $this->categoryPost->find($request->input('parent_id'));
+            }
+        } else {
+            $data = $this->categoryPost->where('parent_id', 0)->orderby('order')->orderBy("created_at", "desc")->paginate(15);
+        }
+       // dd($data);
+        return view("admin.pages.categorypost.list",
             [
                 'data' => $data,
+                'parentBr'=>$parentBr,
             ]
         );
     }
+
+
     public function create(Request $request )
     {
         if($request->has("parent_id")){
@@ -52,8 +57,7 @@ class AdminCategoryPostController extends Controller
             $htmlselect = $this->categoryPost->getHtmlOption();
         }
 
-        return view(
-            "admin.pages.categorypost.add",
+        return view("admin.pages.categorypost.add",
             [
                 'option' => $htmlselect,
                 'request' => $request
@@ -70,7 +74,9 @@ class AdminCategoryPostController extends Controller
                 "description" => $request->input('description'),
                 "description_seo" => $request->input('description_seo'),
                 "title_seo" => $request->input('title_seo'),
+                "keyword_seo" => $request->input('keyword_seo'),
                 "content" => $request->input('content'),
+                'order'=>$request->input('order'),
                 "active" => $request->active,
                 "parent_id" => $request->parentId,
                 "admin_id" => auth()->guard('admin')->id()
@@ -85,11 +91,11 @@ class AdminCategoryPostController extends Controller
             }
             $this->categoryPost->create($dataCategoryPostCreate);
             DB::commit();
-            return redirect()->route("admin.categorypost.create",['parent_id'=>$request->parentId])->with("alert", "Thêm bài viết thành công");
+            return redirect()->route("admin.categorypost.index",['parent_id'=>$request->parentId])->with("alert", "Thêm bài viết thành công");
         } catch (\Exception $exception) {
             DB::rollBack();
             Log::error('message' . $exception->getMessage() . 'line :' . $exception->getLine());
-            return redirect()->route('admin.categorypost.create',['parent_id'=>$request->parentId])->with("error", "Thêm bài viết không thành công");
+            return redirect()->route('admin.categorypost.index',['parent_id'=>$request->parentId])->with("error", "Thêm bài viết không thành công");
         }
     }
     public function edit($id)
@@ -114,6 +120,7 @@ class AdminCategoryPostController extends Controller
                 "title_seo" => $request->input('title_seo'),
                 "content" => $request->input('content'),
                 "active" => $request->active,
+                'order'=>$request->input('order'),
                 "parent_id" => $request->parentId,
                 "admin_id" => auth()->guard('admin')->id()
             ];
@@ -128,12 +135,12 @@ class AdminCategoryPostController extends Controller
             }
             $this->categoryPost->find($id)->update($dataCategoryPostUpdate);
             DB::commit();
-            return redirect()->route("admin.categorypost.index")->with("alert", "Sửa bài viết  thành công");
+            return redirect()->route("admin.categorypost.index",['parent_id'=>$request->parentId])->with("alert", "Sửa bài viết  thành công");
         } catch (\Exception $exception) {
             //throw $th;
             DB::rollBack();
             Log::error('message' . $exception->getMessage() . 'line :' . $exception->getLine());
-            return redirect()->route('admin.categorypost.index')->with("error", "Sửa  bài viết không thành công");;
+            return redirect()->route('admin.categorypost.index',['parent_id'=>$request->parentId])->with("error", "Sửa  bài viết không thành công");;
         }
     }
     public function destroy($id)

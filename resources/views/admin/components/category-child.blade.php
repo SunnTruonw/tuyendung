@@ -13,19 +13,19 @@
                             <i class="fas fa-file-alt"></i>
                       @endif
                 </div>
-                <div class="col-sm-4 pt-2 pb-2 name">
-                    {{ $childValue->name }}
+                <div class="col-sm-6 pt-2 pb-2 name">
+                    <a href="{{ route(Route::currentRouteName(),['parent_id'=>$childValue->id]) }}">{{ $childValue->name }}</a>
                 </div>
-                <div class="col-sm-4 pt-2 pb-2 slug">
-                    {{ $childValue->slug }}
+                <div class="col-sm-2 pt-2 pb-2 slug text-center">
+                    <input data-url="@if (isset($routeNameOrder)) {{ route($routeNameOrder,['table'=>$table,'id'=>$childValue->id]) }} @endif" class="lb-order text-center"  type="number" min="0" value="{{ $childValue->order?$childValue->order:0 }}" style="width:50px" />
                 </div>
-                <div class="col-sm-3 pt-2 pb-2 parent">
-                    {{-- {{ $childValue->parent->name }} --}}
-                    @include('admin.components.breadcrumbs',['breadcrumbs'=>$childValue->breadcrumb])
+                <div class="col-sm-3 pt-2 pb-2 parent text-center">
+                    {{-- @include('admin.components.breadcrumbs',['breadcrumbs'=>$childValue->breadcrumb]) --}}
+                    {!!   $childValue->active==1?"<i class='fas fa-check-circle'></i>":"<i class='fas fa-times-circle'></i>" !!}
                 </div>
             </div>
         </div>
-        <div class="pt-2 pb-2 lb_list_action_recusive" >
+        <div class="pt-1 pb-1 lb_list_action_recusive" >
             <a href="{{route($routeNameEdit,['id'=>$childValue->id])}}" class="btn btn-sm btn-info"><i class="fas fa-edit"></i></a>
             <a href="{{route($routeNameAdd,['parent_id'=>$childValue->id])}}" class="btn btn-sm btn-info">+ Thêm</a>
             <a data-url="{{route($routeNameDelete,['id'=>$childValue->id])}}" class="btn btn-sm btn-danger lb_delete_recusive"><i class="far fa-trash-alt"></i></a>

@@ -26,18 +26,18 @@
                      <div class="col-md-8">
                         <div class="card card-outline card-primary">
                            <div class="card-header">
-                              <h3 class="card-title">Thông tin slider</h3>
+                              <h3 class="card-title">Thông tin hình ảnh</h3>
                            </div>
                            <div class="card-body table-responsive p-3">
                               <div class="form-group">
-                                 <label for="">Name</label>
+                                 <label for="">Tên</label>
                                  <input
                                     type="text"
                                     class="form-control  @error('name') is-invalid @enderror"
                                     id="name"
                                     value="{{ $data->name }}"
                                     name="name"
-                                    placeholder="Nhập tên slider"
+                                    placeholder="Nhập tên"
                                     >
                                  @error('name')
                                  <div class="alert alert-danger">{{ $message }}</div>
@@ -47,7 +47,7 @@
                                  <label for="">Slug</label>
                                  <input type="text"
                                     class="form-control @error('slug') is-invalid @enderror"
-                                    id="slug"
+
                                     value="{{ $data->slug }}"
                                     name="slug"
                                     placeholder="Nhập slug"
@@ -57,7 +57,7 @@
                               <div class="alert alert-danger">{{ $message }}</div>
                               @enderror
                               <div class="form-group">
-                                 <label for="">Nhập mô tả</label>
+                                 <label for="">Nhập giới thiệu</label>
                                  <textarea
                                     class="form-control tinymce_editor_init"
                                     name="description" id="" rows="4"
@@ -72,29 +72,34 @@
                               <div class="form-group">
                                  <div class="form-check-inline">
                                     <label class="form-check-label">
-                                    <input type="radio" class="form-check-input" value="1" name="active" @if( $data->active ==="1"||old('active')===null||old('active')==="1") {{'checked'}}  @endif>Active
+                                    <input type="radio" class="form-check-input" value="1" name="active" @if( $data->active ==="1"||old('active')===null||old('active')==="1") {{'checked'}}  @endif>Hiện
                                     </label>
                                  </div>
                                  <div class="form-check-inline">
                                     <label class="form-check-label">
-                                    <input type="radio" class="form-check-input" value="0" @if($data->active==="0"){{'checked'}}  @endif name="active">Disable
+                                    <input type="radio" class="form-check-input" value="0" @if($data->active==="0"){{'checked'}}  @endif name="active">Ẩn
                                     </label>
                                  </div>
                               </div>
                               @error('active')
                               <div class="alert alert-danger">{{ $message }}</div>
                               @enderror
-                              <div class="form-group form-check">
-                                 <input type="checkbox" class="form-check-input" name="checkrobot" id="">
-                                 <label class="form-check-label" for="" required>Check me out</label>
-                              </div>
-                              @error('checkrobot')
-                              <div class="alert alert-danger">{{ $message }}</div>
-                              @enderror
                               <div class="form-group">
-
-                                 <button type="reset" class="btn btn-danger">Reset</button>
-                                 <button type="submit" class="btn btn-primary">Submit</button>
+                                <label class="control-label" for="">Số thứ tự</label>
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    value="{{old('order')??  $data->order }}"
+                                    name="order"
+                                    placeholder="Nhập số thứ tự"
+                                >
+                                @error('order')
+                                <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                              <div class="form-group">
+                                 <button type="submit" class="btn btn-primary">Chấp nhận</button>
+                                 <button type="reset" class="btn btn-danger">Làm lại</button>
                               </div>
                            </div>
                         </div>

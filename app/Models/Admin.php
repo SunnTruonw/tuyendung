@@ -50,19 +50,21 @@ class Admin extends Authenticatable
             ->belongsToMany(Role::class, RoleAdmin::class, 'admin_id', 'role_id')
             ->withTimestamps();
     }
+
     public function CheckPermissionAccess($key_code)
     {
         $roles = auth()->guard('admin')->user()->getRoles()->get();
 
         foreach ($roles as $role) {
             $permissions = $role->getPermissions()->pluck('key_code');
-          //  dd($permissions);
+            //  dd($permissions);
             if ($permissions->contains($key_code)) {
                 return true;
             }
         }
         return false;
     }
+
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new AdminResetPasswordNotification($token));

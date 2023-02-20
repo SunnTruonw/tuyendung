@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\CartToggle;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -67,5 +68,16 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'profileOwnUser'=>\App\Http\Middleware\ProfileOwnUser::class,
+        'productOwnUser'=>\App\Http\Middleware\ProductOwnUser::class,
+        'reviewOwnUser'=>\App\Http\Middleware\ReviewOwnUser::class,
+        'checkTypeUserCreateProduct'=>\App\Http\Middleware\CheckTypeUserCreateProduct::class,
+        'cartToggle'=>\App\Http\Middleware\CartToggle::class,
+        'checkUserActive'=>\App\Http\Middleware\CheckUserActive::class,
+        'checkMoneyViewProduct'=>\App\Http\Middleware\CheckMoneyViewProduct::class,
+        'checkMoneyCreateProduct'=>\App\Http\Middleware\CheckMoneyCreateProduct::class,
+        'completePurchase' => \PHPViet\Laravel\Omnipay\Middleware\CompletePurchaseMiddleware::class,
+        'isCreateShop'=>\App\Http\Middleware\IsCreateShop::class,
+        'transactionOwnShop'=>\App\Http\Middleware\TransactionOwnShop::class,
     ];
 }

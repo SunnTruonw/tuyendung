@@ -18,7 +18,7 @@
 
   <div class="content-wrapper">
 
-    @include('admin.partials.content-header',['name'=>" Admin User","key"=>"Thêm admin user"])
+    @include('admin.partials.content-header',['name'=>" Admin User","key"=>"Thêm tài khoản"])
 
     <!-- Main content -->
     <div class="content">
@@ -41,17 +41,17 @@
                     <div class="col-md-8">
                         <div class="card card-outline card-primary">
                             <div class="card-header">
-                            <h3 class="card-title">Thông tin admin user</h3>
+                            <h3 class="card-title">Thông tin tài khoản</h3>
                             </div>
                             <div class="card-body table-responsive p-3">
                                 <div class="form-group">
-                                    <label for="">Tên admin user</label>
+                                    <label for="">Tên tài khoản</label>
                                     <input
                                         type="text"
                                         class="form-control"
                                         id=""
                                         value="{{ old('name') }}"  name="name"
-                                        placeholder="Nhập admin user"
+                                        placeholder="Nhập tài khoản"
                                     >
                                     @error('name')
                                         <div class="alert alert-danger">{{ $message }}</div>
@@ -71,26 +71,26 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Password</label>
+                                    <label for="">Mật khẩu</label>
                                     <input
                                         type="password"
                                         class="form-control"
                                         id=""
                                         value="{{ old('password') }}"  name="password"
-                                        placeholder="Password"
+                                        placeholder="Nhập mật khẩu"
                                     >
                                     @error('password')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                <label for="">password confirmation</label>
+                                <label for="">Nhập lại mật khẩu</label>
                                 <input
                                     type="password"
                                     class="form-control"
                                     id=""
                                     value="{{ old('password_confirmation') }}"  name="password_confirmation"
-                                    placeholder="password_confirmation"
+                                    placeholder="Nhập lại mật khẩu"
                                 >
                                 @error('password_confirmation')
                                     <div class="alert alert-danger">{{ $message }}</div>
@@ -119,7 +119,7 @@
                                         name="active"
                                         @if(old('active')==="1"||old('active')===null) {{'checked'}}  @endif
                                     >
-                                    Active
+                                    Hiện
                                     </label>
                                 </div>
                                 <div class="form-check-inline">
@@ -131,7 +131,7 @@
                                             @if(old('active')==="0"){{'checked'}}  @endif
                                             name="active"
                                         >
-                                        Disable
+                                        Ẩn đi
                                     </label>
                                 </div>
                                 </div>
@@ -140,14 +140,14 @@
                                 @enderror
                                 <div class="form-group form-check">
                                 <input type="checkbox" class="form-check-input" name="checkrobot" id="checkrobot" required>
-                                <label class="form-check-label" for="checkrobot">Check me out</label>
+                                <label class="form-check-label" for="checkrobot">Tôi đồng ý</label>
                                 </div>
                                 @error('checkrobot')
                                 <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                                 <div class="form-group">
-                                <button type="reset" class="btn btn-danger">Reset</button>
                                 <button type="submit" class="btn btn-primary">Chấp nhận</button>
+                                <button type="reset" class="btn btn-danger">Làm lại</button>
                                 </div>
                             </div>
                         </div>
@@ -168,7 +168,7 @@
 <script>
   $(function(){
     $(".select-2-init").select2({
-      placeholder: "Chọn role",
+      placeholder: "Chọn vai trò",
       allowClear: true
     })
   })

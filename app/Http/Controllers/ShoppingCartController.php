@@ -7,7 +7,7 @@ use App\Models\Order;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Models\Point;
+
 use App\Models\City;
 use App\Models\District;
 use App\Models\Commune;
@@ -18,13 +18,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 use App\Models\Setting;
-
+use App\Http\Requests\Frontend\ValidateAddOrder;
 class ShoppingCartController extends Controller
 {
     //
 
     private $product;
-    private $point;
     private $order;
     private $cart;
     private $city;
@@ -32,66 +31,77 @@ class ShoppingCartController extends Controller
     private $commune;
     private $transaction;
     private $unit;
-    private $pointUnit;
     private $setting;
-    private $typePoint;
-    public function __construct(Product $product, City $city, District $district, Commune $commune, Order $order, Transaction $transaction, Setting $setting, Point $point)
+   // private $viewCartComponent='frontend.pages.cart.cart-component';
+    private $viewCartComponent='frontend.pages.cart.cart-component-by-user';
+    public function __construct(Product $product, City $city, District $district, Commune $commune, Order $order, Transaction $transaction,Setting $setting)
     {
         $this->product = $product;
-        $this->point = $point;
         $this->order = $order;
         $this->city = $city;
         $this->district = $district;
         $this->commune = $commune;
         $this->transaction = $transaction;
-        $this->setting = $setting;
-        $this->unit = "đ";
-        $this->pointUnit = config('point.pointUnit');
-        $this->typePoint = config('point.typePoint');
+        $this->setting=$setting;
+        $this->unit="đ";
     }
     public function list()
     {
-        $numberPoint = 0;
         $address = new AddressHelper();
         $data = $this->city->orderby('name')->get();
         $cities = $address->cities($data);
+      //  dd($this->city->get());
         $this->cart = new CartHelper();
         $data = $this->cart->cartItems;
-        //  dd($data);
         $totalPrice =  $this->cart->getTotalPrice();
+        $totalOldPrice =  $this->cart->getTotalOldPrice();
+
         $totalQuantity =  $this->cart->getTotalQuantity();
-        $totalOldPrice = $this->cart->getTotalOldPrice();
+        $vanchuyen=$this->setting->find(140);
+        $thanhtoan=$this->setting->find(139);
+        $chinhanh=$this->setting->find(143);
+        $dataByUser= $this->cart->getGroupItemByUser();
 
-        $totalPriceMoney = $totalPrice;
-        $totalPricePoint = 0;
-
-        // dd( $totalOldPrice);
-        $user = auth()->guard('web')->user();
-        $sumPointCurrent = $this->point->sumPointCurrent($user->id);
-        // dd($this->cart->cartItems);
-        return view('frontend.pages.cart', [
+        return view('frontend.pages.cart.cart', [
+            'dataByUser'=>$dataByUser,
             'data' => $data,
             'cities' => $cities,
             'totalPrice' => $totalPrice,
             'totalQuantity' => $totalQuantity,
-            'totalOldPrice' => $totalOldPrice,
-            'unit' => $this->unit,
-            'sumPointCurrent' => $sumPointCurrent,
-            'totalPriceMoney' => $totalPriceMoney,
-            'totalPricePoint' => $totalPricePoint,
-            'pointUnit' => $this->pointUnit,
-            'usePoint' => $numberPoint,
+            'totalOldPrice'=>$totalOldPrice,
+            'vanchuyen'=>$vanchuyen,
+            'thanhtoan'=>$thanhtoan,
+            'chinhanh'=>$chinhanh,
         ]);
     }
 
-    public function add($id)
+    public function add($id,Request $request)
     {
         $this->cart = new CartHelper();
 
-        $product = $this->product->find($id);
+        $quantity=1;
+        if($request->has('quantity')&&$request->input('quantity')){
+            $quantity=(int) $request->input('quantity');
+            if($quantity<=0){
+                $quantity=1;
+            }
+        }
 
-        $this->cart->add($product);
-        //  dd($this->cart->cartItems);
+        if($request->has('option')&&$request->input('option')){
+           // dd($this->product->mergeOption($request->input('option'))->where('products.id',$id)->get());
+            $product=  $this->product->join('options', 'products.id', '=', 'options.product_id')
+           ->select('products.*', 'options.size as size', 'options.price as price', 'options.id as option_id')
+            ->where('options.id',$request->input('option'))
+            ->where('products.id',$id)
+           ->first();
+        }else{
+            $product = $this->product->find($id);
+        }
+
+        //  dd($quantity);
+        $this->cart->add($product,$quantity);
+
+      //  dd($this->cart->cartItems);
         return response()->json([
             'code' => 200,
             'messange' => 'success'
@@ -104,144 +114,56 @@ class ShoppingCartController extends Controller
         $product = $this->product->find($id);
 
         $this->cart->add($product);
-        //  dd($this->cart->cartItems);
+      //  dd($this->cart->cartItems);
         return redirect()->route("cart.list");
     }
-    public function remove($id, Request $request)
+    public function remove($id,Request $request)
     {
-        $user = auth()->guard('web')->user();
-        $sumPointCurrent = $this->point->sumPointCurrent($user->id);
-
-
-
         $this->cart = new CartHelper();
-        $this->cart->remove($id);
+        if($request->option){
+            $this->cart->remove($id,$request->option);
+        }else{
+            $this->cart->remove($id);
+        }
+
         $totalPrice =  $this->cart->getTotalPrice();
         $totalQuantity =  $this->cart->getTotalQuantity();
-
         $totalOldPrice =  $this->cart->getTotalOldPrice();
-        //    dd( $totalOldPrice);
-        $numberPoint = 0;
-        $errorNumberPoint = false;
-        if ($request->has('usePoint')) {
-
-            $numberPoint = (float)$request->input('usePoint');
-            if ($numberPoint) {
-                //  dd($numberPoint);
-                if ($numberPoint > $sumPointCurrent) {
-                    $errorNumberPoint = "Số điểm sử dụng phải nhỏ hơn số điểm hiện có :" . $sumPointCurrent . " " . $this->pointUnit;
-                    $totalPriceMoney = $totalPrice;
-                    $totalPricePoint = 0;
-                } elseif (pointToMoney($numberPoint) > $totalPrice) {
-                    $errorNumberPoint = "Số điểm sử dụng tương đương với " . number_format(pointToMoney($numberPoint)) . " " . $this->unit . " nhỏ hơn tổng giá trị sản phẩm:" . number_format($totalPrice) . " " . $this->unit;
-                    $totalPriceMoney = $totalPrice;
-                    $totalPricePoint = 0;
-                } else {
-                    $totalPriceMoney = $totalPrice - pointToMoney($numberPoint);
-                    $totalPricePoint = $numberPoint;
-                }
-            } else {
-                $totalPriceMoney = $totalPrice;
-                $totalPricePoint = 0;
-            }
-        } else {
-            $totalPriceMoney = $totalPrice - pointToMoney($numberPoint);
-            $totalPricePoint = $numberPoint;
-        }
-        //   dd($errorNumberPoint);
-        // dd($totalPriceMoney);
-        $totalQuantity =  $this->cart->getTotalQuantity();
         return response()->json([
             'code' => 200,
-            'htmlcart' => view('frontend.components.cart-component', [
+            'htmlcart' => view($this->viewCartComponent, [
                 'data' => $this->cart->cartItems,
                 'totalPrice' => $totalPrice,
                 'totalQuantity' => $totalQuantity,
-
-                'totalPriceMoney' => $totalPriceMoney,
-                'totalPricePoint' => $totalPricePoint,
-                'sumPointCurrent' => $sumPointCurrent,
-                'totalOldPrice' => $totalOldPrice,
-                'errorNumberPoint' => $errorNumberPoint,
-                'usePoint' => $numberPoint,
-                'pointUnit' => $this->pointUnit,
-                'unit' => $this->unit,
-
+                'totalOldPrice'=>$totalOldPrice,
             ])->render(),
-            // 'totalPrice' => $totalPrice,
+            'totalPrice' => $totalPrice,
             'messange' => 'success'
         ], 200);
     }
     public function update($id, Request $request)
     {
-
-        $user = auth()->guard('web')->user();
-        $sumPointCurrent = $this->point->sumPointCurrent($user->id);
         $this->cart = new CartHelper();
         $quantity = $request->quantity;
-        if ($id) {
+        if($request->option){
+            $this->cart->update($id, $quantity,$request->option);
+        }else{
             $this->cart->update($id, $quantity);
         }
+
         $totalPrice =  $this->cart->getTotalPrice();
-        $totalOldPrice =  $this->cart->getTotalOldPrice();
-        //    dd( $totalOldPrice);
-        $numberPoint = 0;
-        $errorNumberPoint = false;
-
-        if ($request->has('usePoint')) {
-
-            $numberPoint = (float)$request->input('usePoint');
-            //  dd( $totalPrice);
-            if ($numberPoint) {
-                //  dd($numberPoint);
-                if ($numberPoint > $sumPointCurrent) {
-                    $errorNumberPoint = "Số điểm sử dụng phải nhỏ hơn số điểm hiện có :" . number_format($sumPointCurrent) . " " . $this->pointUnit;
-                    $totalPriceMoney = $totalPrice;
-                    $totalPricePoint = 0;
-                } elseif (pointToMoney($numberPoint) > $totalPrice) {
-                    $errorNumberPoint = "Số điểm sử dụng tương đương với " . number_format(pointToMoney($numberPoint)) . " " . $this->unit . " nhỏ hơn tổng giá trị sản phẩm:" . number_format($totalPrice) . " " . $this->unit;
-                    $totalPriceMoney = $totalPrice;
-                    $totalPricePoint = 0;
-                } else {
-                    $totalPriceMoney = $totalPrice - pointToMoney($numberPoint);
-                    $totalPricePoint = $numberPoint;
-                }
-            } else {
-                $totalPriceMoney = $totalPrice;
-                $totalPricePoint = 0;
-            }
-        } else {
-            $totalPriceMoney = $totalPrice - pointToMoney($numberPoint);
-            $totalPricePoint = $numberPoint;
-        }
-
-
-
-        //   dd($totalPriceMoney);
-        //   dd($errorNumberPoint);
-        // dd($totalPriceMoney);
         $totalQuantity =  $this->cart->getTotalQuantity();
+        $totalOldPrice =  $this->cart->getTotalOldPrice();
         return response()->json([
             'code' => 200,
-            'htmlcart' => view('frontend.components.cart-component', [
+            'htmlcart' => view($this->viewCartComponent, [
                 'data' => $this->cart->cartItems,
                 'totalPrice' => $totalPrice,
-                'totalPriceMoney' => $totalPriceMoney,
-                'totalPricePoint' => $totalPricePoint,
                 'totalQuantity' => $totalQuantity,
-                'sumPointCurrent' => $sumPointCurrent,
-                'totalOldPrice' => $totalOldPrice,
-                'errorNumberPoint' => $errorNumberPoint,
-                'usePoint' => $numberPoint,
-                'pointUnit' => $this->pointUnit,
-                'unit' => $this->unit,
+                'totalOldPrice'=>$totalOldPrice,
             ])->render(),
-            // 'totalPrice' => number_format($totalPrice),
-            // 'totalQuantity' => number_format($totalQuantity),
-            // 'totalPriceMoney'=>number_format($totalPriceMoney),
-            // 'totalPricePoint'=>number_format($totalPricePoint),
-            // 'totalOldPrice'=>number_format($totalOldPrice),
-            // 'sumPointCurrent'=>$sumPointCurrent,
+            'totalPrice' => $totalPrice,
+            'totalQuantity' => $totalQuantity,
             'messange' => 'success'
         ], 200);
     }
@@ -251,12 +173,14 @@ class ShoppingCartController extends Controller
         $this->cart->clear();
         $totalPrice =  $this->cart->getTotalPrice();
         $totalQuantity =  $this->cart->getTotalQuantity();
+        $totalOldPrice =  $this->cart->getTotalOldPrice();
         return response()->json([
             'code' => 200,
-            'htmlcart' => view('frontend.components.cart-component', [
+            'htmlcart' => view($this->viewCartComponent, [
                 'data' => $this->cart->cartItems,
                 'totalPrice' => $totalPrice,
                 'totalQuantity' => $totalQuantity,
+                'totalOldPrice'=>$totalOldPrice,
             ])->render(),
             'totalPrice' => $totalPrice,
             'totalQuantity' => $totalQuantity,
@@ -264,33 +188,25 @@ class ShoppingCartController extends Controller
         ], 200);
     }
 
-    public function postOrder(Request $request)
+    public function postOrder(ValidateAddOrder $request)
     {
+
         $this->cart = new CartHelper();
         $dataCart = $this->cart->cartItems;
-        if (count($dataCart)) {
-            try {
-                DB::beginTransaction();
+        //  dd($request->all());
+        if(!count($dataCart)){
+            return redirect()->route('cart.order.error')->with("error", "Đặt hàng không thành công! Bạn chưa chọn sản phẩm nào");
+        }
 
-                //  dd($dataCart);
-                $totalPrice =  $this->cart->getTotalPrice();
-                $totalQuantity =  $this->cart->getTotalQuantity();
-                // $dataOrderCreate = [
-                //     "quantity" => $request->input('quantity'),
-                // ];
-
-                $code= 'mgd-'.date('Y-m-d-h-s-m');
-                while($this->transaction->where([
-                    'code'=>$code,
-                ])->exists()){
-                    $code= 'mgd-'.date('Y-m-d-h-s-m').rand(1,1000);
-                }
-
+        try {
+            DB::beginTransaction();
+            $dataByUser= $this->cart->getGroupItemByUser();
+            $group =  makeGroupTransaction($this->transaction);
+            foreach ($dataByUser as $key => $dataOfUser) {
+                $totalPrice =  $dataOfUser['totalPriceByUser'];
+                $totalQuantity =  $dataOfUser['totalQuantityByUser'];
                 $dataTransactionCreate = [
-                    'code'=>$code,
                     'total' => $totalPrice,
-                    'point' => $request->input('usePoint') ? $request->input('usePoint') : 0,
-                    'money' => $totalPrice - (pointToMoney($request->input('usePoint') ? $request->input('usePoint') : 0)),
                     'name' => $request->input('name'),
                     'phone' => $request->input('phone'),
                     'note' => $request->input('note'),
@@ -300,34 +216,20 @@ class ShoppingCartController extends Controller
                     'district_id' => $request->input('district_id'),
                     'commune_id' => $request->input('commune_id'),
                     'address_detail' => $request->input('address_detail'),
+                    'httt' => $request->input('httt'),
+                    'cn' => $request->input('cn'),
                     'admin_id' => 0,
                     'user_id' => Auth::check() ? Auth::user()->id : 0,
+                    'code'=>makeCodeTransaction($this->transaction),
+                    'origin_id'=>$key?$key:null,
+                    'group'=>$group,
                 ];
-                $user = auth()->guard('web')->user();
-                if ($request->has('usePoint')) {
-                    if ($request->input('usePoint')) {
-                        $dataTransactionCreate['point'] = $request->input('usePoint');
-                        $dataTransactionCreate['money'] = $totalPrice - pointToMoney($dataTransactionCreate['point']);
-
-
-                        if ($user) {
-                            $user->points()->create([
-                                'type' => $this->typePoint[6]['type'],
-                                'point' => 0 - $dataTransactionCreate['point'],
-                                'active' => 1,
-                            ]);
-                        }
-                    } else {
-                        $dataTransactionCreate['point'] = 0;
-                        $dataTransactionCreate['money'] = $totalPrice;
-                    }
-                }
-                // tạo giao dịch
-                //    dd($this->transaction);
+                //  dd($dataTransactionCreate);
                 $transaction = $this->transaction->create($dataTransactionCreate);
-                // tạo các order của transaction
+                // dd($transaction);
                 $dataOrderCreate = [];
-                foreach ($dataCart as $cart) {
+                foreach ($dataOfUser['item'] as $cart) {
+
                     $dataOrderCreate[] = [
                         'name' => $cart['name'],
                         'quantity' => $cart['quantity'],
@@ -335,58 +237,55 @@ class ShoppingCartController extends Controller
                         'old_price' => $cart['totalOldPriceOneItem'],
                         'avatar_path' => $cart['avatar_path'],
                         'sale' => $cart['sale'],
+                        'size' => $cart['size'],
+                        'option_id' => $cart['option_id']??0,
                         'product_id' => $cart['id'],
                     ];
-                    $product = $this->product->find($cart['id']);
-                    $pay = $product->pay;
+
+                    $product=$this->product->find($cart['id']);
+                    $pay= $product->pay;
                     $product->update([
-                        'pay' => $pay + $cart['quantity'],
+                        'pay'=>$pay+$cart['quantity'],
                     ]);
                 }
-                //   dd($dataOrderCreate);
                 // insert database in orders table by createMany
                 $transaction->orders()->createMany($dataOrderCreate);
-
-                // Đưa sản phẩm trong kho sang trạng thái đợi vận chuyển
-                $dataStoreCreate = [
-                    "active" => 1,
-                    "type" => 2,
-                ];
-
-                $dataStoreCreate["transaction_id"] = $transaction->id;
-                $orders= $transaction->orders;
-                $listDataStoreCreate=[];
-                foreach ($orders as $order) {
-                    $storeItem= $dataStoreCreate;
-                    $storeItem['quantity']=-$order->quantity;
-                    $storeItem['product_id']=$order->product_id;
-                    array_push($listDataStoreCreate,$storeItem);
-                }
-             //   dd($listDataStoreCreate);
-                $transaction->stores()->createMany($listDataStoreCreate);
-
-
-                $this->cart->clear();
-                DB::commit();
-                return redirect()->route('cart.order.sucess', ['id' => $transaction->id])->with("sucess", "Đặt hàng thành công");
-            } catch (\Exception $exception) {
-                //throw $th;
-                DB::rollBack();
-                Log::error('message' . $exception->getMessage() . 'line :' . $exception->getLine());
-                return redirect()->route('cart.order.sucess', ['id' => $transaction->id])->with("error", "Đặt hàng không thành công");
             }
-        } else {
-            return;
+
+            $this->cart->clear();
+            DB::commit();
+           return redirect()->route('cart.order.sucess',['id'=>$group])->with("sucess", "Đặt hàng thành công");
+        } catch (\Exception $exception) {
+            //throw $th;
+            DB::rollBack();
+            Log::error('message' . $exception->getMessage() . 'line :' . $exception->getLine());
+          return redirect()->route('cart.order.error')->with("error", "Đặt hàng không thành công");
         }
     }
-    public function getOrderSuccess(Request $request)
-    {
-        $id = $request->id;
-        $data = $this->transaction->find($id);
-        return view('frontend.pages.order-sucess', [
-            'data' => $data,
-            'pointUnit' => $this->pointUnit,
-            'unit' => $this->unit,
+    public function getOrderSuccess(Request $request){
+        $group=$request->id;
+        $data = $this->transaction->where('group',$group)->get();
+        $count =$this->transaction->select(Transaction::raw('SUM(total) as total_money'))->where('group',$group)->first()->total_money;
+        // dd($count);
+        return view('frontend.pages.cart.order-sucess', [
+             'data' => $data,
+             'count'=>$count
         ]);
     }
+    public function getOrderError(Request $request){
+        $data = null;
+        return view('frontend.pages.cart.order-sucess', [
+             'data' => $data,
+        ]);
+    }
+    public function checkLogin(Request $request){
+        if (!Auth::check()) {
+            session()->put('urlBack', route('cart.list'));
+            return redirect()->route('login');
+        }
+        return redirect()->route('cart.list');
+    }
+
+    // store order
+
 }

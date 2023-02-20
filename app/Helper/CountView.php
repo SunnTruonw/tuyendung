@@ -32,7 +32,8 @@ class CountView
         }
         // đặt lại mốc thời gian truy cập là thời điểm hiện tại
         session()->put($key,$timeNow);
-        $model->where('id',$id)->increment('view',1);
+        $model->where('id',$id)->increment($column,1);
+        return true;
     }
 
     public function getClientIp()

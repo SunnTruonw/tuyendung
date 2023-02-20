@@ -1,4 +1,20 @@
-@extends('layouts.app')
+{{-- @extends('layouts.app') --}}
+@extends('frontend.layouts.main')
+@section('title', $seo['title'] ?? '' )
+@section('keywords', $seo['keywords']??'')
+@section('description', $seo['description']??'')
+@section('abstract', $seo['abstract']??'')
+@section('image', $seo['image']??'')
+
+@section('css')
+<style type="text/css">
+    @media (max-width: 550px){
+        .wrap-slide-home{
+            display: none;
+        }
+    }
+</style>
+@endsection
 
 @section('content')
 <div class="container">

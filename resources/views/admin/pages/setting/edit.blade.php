@@ -2,7 +2,7 @@
 @section('title', 'Thêm setting')
 @section('content')
     <div class="content-wrapper">
-        @include('admin.partials.content-header',['name'=>"Setting","key"=>"Sửa setting"])
+        @include('admin.partials.content-header',['name'=>"Setting","key"=>"Sửa nội dung"])
 
         <!-- Main content -->
         <div class="content">
@@ -21,27 +21,42 @@
                         <form action="{{ route('admin.setting.update', ['id' => $data->id]) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card-header">
+                                        @foreach ($errors->all() as $message)
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card-tool p-3 text-right">
+                                        <button type="submit" class="btn btn-primary btn-lg">Chấp nhận</button>
+                                        <button type="reset" class="btn btn-danger btn-lg">Làm lại</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-8">
 
                                     <div class="card card-outline card-primary">
                                         <div class="card-header">
-                                            <h3 class="card-title">Thông tin setting</h3>
+                                            <h3 class="card-title">Thêm nội dung mới</h3>
                                         </div>
                                         <div class="card-body table-responsive p-3">
                                             <div class="form-group">
-                                                <label for="">Tên setting</label>
+                                                <label for="">Tên nội dung mới</label>
                                                 <input type="text" class="form-control" id="name" value="{{ $data->name }}"
-                                                    name="name" placeholder="Nhập name">
+                                                    name="name" placeholder="Nhập nội dung mới">
                                             </div>
                                             @error('name')
                                                 <div class="alert alert-danger">{{ $message }}</div>
                                             @enderror
 
                                             <div class="form-group">
-                                                <label for="">Value setting</label>
+                                                <label for="">Nội dung</label>
                                                 <textarea
                                                     class="form-control @error('value') is-invalid @enderror"
-                                                    name="value" id="" rows="3" value="" placeholder="Nhập value">{{ $data->value }}</textarea>
+                                                    name="value" id="" rows="3" value="" placeholder="Nhập nội dung">{{ $data->value }}</textarea>
                                             </div>
                                             @error('value')
                                                 <div class="alert alert-danger">{{ $message }}</div>
@@ -81,30 +96,20 @@
                                                 <div class="form-check-inline">
                                                     <label class="form-check-label">
                                                         <input type="radio" class="form-check-input" value="1" name="active" @if ($data->active == '1' || old('active') == '1')
-                                                        {{ 'checked' }} @endif>Active
+                                                        {{ 'checked' }} @endif>Hiện
                                                     </label>
                                                 </div>
                                                 <div class="form-check-inline">
                                                     <label class="form-check-label">
                                                         <input type="radio" class="form-check-input" value="0" @if ($data->active == '0' || old('active') == '0'){{ 'checked' }}
-                                                        @endif name="active">Disable
+                                                        @endif name="active">Ẩn
                                                     </label>
                                                 </div>
                                             </div>
                                             @error('active')
                                                 <div class="alert alert-danger">{{ $message }}</div>
                                             @enderror
-                                            <div class="form-group form-check">
-                                                <input type="checkbox" class="form-check-input" name="checkrobot" id="checkrobot">
-                                                <label class="form-check-label" for="checkrobot" required>Check me out</label>
-                                            </div>
-                                            @error('checkrobot')
-                                                <div class="alert alert-danger">{{ $message }}</div>
-                                            @enderror
-                                            <div class="form-group">
-                                                <button type="reset" class="btn btn-danger">Reset</button>
-                                                <button type="submit" class="btn btn-primary">Chấp nhận</button>
-                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -116,7 +121,7 @@
                                         <div class="card-body table-responsive p-3">
                                             <div class="wrap-load-image mb-3">
                                                 <div class="form-group">
-                                                    <label for="">Image</label>
+                                                    <label for="">Hình ảnh</label>
                                                     <input type="file" class="form-control-file img-load-input border" id="" value="" name="image_path">
                                                 </div>
                                                 @error('image_path')

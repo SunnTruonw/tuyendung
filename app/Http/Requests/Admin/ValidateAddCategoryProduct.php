@@ -28,9 +28,11 @@ class ValidateAddCategoryProduct extends FormRequest
     public function rules()
     {
         return [
-                "name" => "required|min:3|max:100",
+                "name" => "required|min:1|max:191",
                 "slug" => [
                     "required",
+                    "min:1",
+                    "max:191",
                    // 'unique:App\Models\CategoryProduct,slug',
                      Rule::unique("App\Models\CategoryProduct",'slug')->where(function ($query) {
                         return $query->where('deleted_at', null);
@@ -39,7 +41,9 @@ class ValidateAddCategoryProduct extends FormRequest
                 "icon" => "mimes:jpeg,jpg,png,svg|nullable|max:3000",
                 "avatar" => "mimes:jpeg,jpg,png,svg|nullable|max:3000",
                 "active" => "required",
-                "checkrobot" => "accepted"
+                "title_seo"=>"nullable|min:1|max:191",
+                "description_seo"=>"nullable|min:1|max:191",
+                "keyword_seo"=>"nullable|min:1|max:191",
         ];
     }
     public function messages()

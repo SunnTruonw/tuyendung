@@ -4,7 +4,7 @@
     $i++;
 @endphp
 @if ($limit>=$i)
-<li class="">
+<li class="nav-sub-item">
     <a href="{{ $childs['slug_full'] }}"><span>{{ $childs['name'] }}</span>
         @isset($childs['childs'])
             @if (count($childs['childs'])>0&&$limit>=$i+1)

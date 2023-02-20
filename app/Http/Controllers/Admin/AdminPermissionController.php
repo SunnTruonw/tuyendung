@@ -69,6 +69,7 @@ class AdminPermissionController extends Controller
             'data' => $data
         ]);
     }
+
     public function update(ValidateEditPermission $request, $id)
     {
         $this->permission->find($id)->update([
@@ -81,7 +82,7 @@ class AdminPermissionController extends Controller
     }
     public function destroy($id)
     {
-        return $this->deleteTrait($this->permission, $id);
+        return $this->deleteCategoryRecusiveTrait($this->permission, $id);
     }
 
 

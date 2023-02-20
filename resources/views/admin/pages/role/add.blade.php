@@ -95,14 +95,14 @@
                               @enderror
                               <div class="form-group form-check">
                                  <input type="checkbox" class="form-check-input" name="checkrobot" id="checkrobot" required>
-                                 <label class="form-check-label" for="checkrobot">Check me out</label>
+                                 <label class="form-check-label" for="checkrobot">Tôi đồng ý</label>
                               </div>
                               @error('checkrobot')
                               <div class="alert alert-danger">{{ $message }}</div>
                               @enderror
                               <div class="form-group">
-                                 <button type="reset" class="btn btn-danger">Reset</button>
                                  <button type="submit" class="btn btn-primary">Chấp nhận</button>
+                                 <button type="reset" class="btn btn-danger">Làm lại</button>
                               </div>
                            </div>
                         </div>

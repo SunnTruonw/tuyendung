@@ -58,9 +58,9 @@ class AdminMenuController extends Controller
             "admin_id"=>auth()->guard('admin')->id()
           ];
         if($this->menu->create($dataMenuCreate)){
-            return redirect()->route("admin.menu.store",['parent_id'=>$request->parentId])->with("alert", "Thêm menu thành công");
+            return redirect()->route("admin.menu.create",['parent_id'=>$request->parentId])->with("alert", "Thêm menu thành công");
         }else{
-            return redirect()->route("admin.menu.store",['parent_id'=>$request->parentId])->with("error", "Thêm menu không thành công");
+            return redirect()->route("admin.menu.create",['parent_id'=>$request->parentId])->with("error", "Thêm menu không thành công");
         }
     }
     public function edit($id)

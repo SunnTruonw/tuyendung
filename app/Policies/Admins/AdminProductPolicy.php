@@ -28,6 +28,21 @@ class AdminProductPolicy
     }
 
 
+    public function listComment(Admin $user)
+    {
+       // dd($user->CheckPermissionAccess(config('permissions.access.comment-post-list')));
+        return $user->CheckPermissionAccess(config('permissions.access.comment-product-list'));
+    }
+    public function deleteComment(Admin $user)
+    {
+        return $user->CheckPermissionAccess(config('permissions.access.comment-product-delete'));
+    }
+    public function activeComment(Admin $user)
+    {
+        return $user->CheckPermissionAccess(config('permissions.access.comment-product-active'));
+    }
+
+
     /**
      * Determine whether the user can view any models.
      *
